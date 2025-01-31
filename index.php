@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- Page Title -->
-    <title>Hospital Management System</title>
+    <title>Digital Health Card</title>
     <!-- Favicon -->
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/x-icon">
     <!-- CSS Files -->
@@ -36,6 +36,7 @@
                     <ul class="nav-menu">
                         <li class="menu-active"><a href="index.php">Home</a></li>
                         <li><a href="backend/doc/index.php">Doctor's Login</a></li>
+                        <li><a href="backend/patient/index.php">Patient Login</a></li>
                         <li><a href="backend/admin/index.php">Administrator Login</a></li>
                     </ul>
                 </nav><!-- #nav-menu-container -->		    		
