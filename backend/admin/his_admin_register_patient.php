@@ -1,10 +1,9 @@
-<!--Server side code to handle  Patient Registration-->
 <?php
 	session_start();
 	include('assets/inc/config.php');
-		if(isset($_POST['add_patient']))
+		if(isset($_POST['record_patient_det']))
 		{
-			$pat_fname=$_POST['pat_fname'];
+            $pat_fname=$_POST['pat_fname'];
 			$pat_lname=$_POST['pat_lname'];
 			$pat_number=$_POST['pat_number'];
             $pat_phone=$_POST['pat_phone'];
@@ -12,16 +11,19 @@
             $pat_addr=$_POST['pat_addr'];
             $pat_dob = $_POST['pat_dob'];
             $pat_emer_con = $_POST['pat_emer-con'];
-            //sql to insert captured values
-			$query="insert into his_patients (pat_fname,  pat_lname, pat_dob, pat_phone,pat_addr,blood_type,pat_emer_con) values(?,?,?,?,?,?,?)";
+			$past_illnesses = json_encode($_POST['past_illnesses']);
+			$surgeries = json_encode($_POST['surgeries']);
+			$chronic_conditions = json_encode($_POST['chronic_conditions']);
+			$family_medical_history = json_encode($_POST['family_medical_history']);
+            $medications = json_encode($_POST['medications']);
+            $allergies = $_POST['allergies'];
+            $investigation = $_POST['investigation'];
+            
+			$query="insert into his_patients (past_illnesses, surgeries, chronic_conditions, family_medical_history, medications, allergies, investigation) values(?,?,?,?,?,?,?)";
 			$stmt = $mysqli->prepare($query);
-			$rc=$stmt->bind_param('sssssss', $pat_fname, $pat_lname,$pat_dob, $pat_phone,  $pat_addr, $blood_type, $pat_emer_con,);
+			$rc=$stmt->bind_param('sssssss', $past_illnesses, $surgeries, $chronic_conditions, $family_medical_history, $medications, $allergies, $investigation);
 			$stmt->execute();
-			/*
-			*Use Sweet Alerts Instead Of This Fucked Up Javascript Alerts
-			*echo"<script>alert('Successfully Created Account Proceed To Log In ');</script>";
-			*/ 
-			//declare a varible which will be passed to alert function
+			
 			if($stmt)
 			{
 				$success = "Patient Details Added";
@@ -30,40 +32,19 @@
 				$err = "Please Try Again Or Try Later";
 			}
 			
-			
 		}
 ?>
-<!--End Server Side-->
-<!--End Patient Registration-->
 <!DOCTYPE html>
 <html lang="en">
     
-    <!--Head-->
     <?php include('assets/inc/head.php');?>
     <body>
-
-        <!-- Begin page -->
         <div id="wrapper">
-
-            <!-- Topbar Start -->
             <?php include("assets/inc/nav.php");?>
-            <!-- end Topbar -->
-
-            <!-- ========== Left Sidebar Start ========== -->
             <?php include("assets/inc/sidebar.php");?>
-            <!-- Left Sidebar End -->
-
-            <!-- ============================================================== -->
-            <!-- Start Page Content here -->
-            <!-- ============================================================== -->
-
             <div class="content-page">
                 <div class="content">
-
-                    <!-- Start Content-->
                     <div class="container-fluid">
-                        
-                        <!-- start page title -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box">
@@ -71,23 +52,20 @@
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item"><a href="his_admin_dashboard.php">Dashboard</a></li>
                                             <li class="breadcrumb-item"><a href="javascript: void(0);">Patients</a></li>
-                                            <li class="breadcrumb-item active">Add Patient</li>
+                                            <li class="breadcrumb-item active">Record Patient Details</li>
                                         </ol>
                                     </div>
-                                    <h4 class="page-title">Add Patient Details</h4>
+                                    <h4 class="page-title">Record Patient information</h4>
                                 </div>
                             </div>
                         </div>     
-                        <!-- end page title --> 
-                        <!-- Form row -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-body">
                                         <h4 class="header-title">Fill all fields</h4>
-                                        <!--Add Patient Form-->
                                         <form method="post">
-                                            <div class="form-row">
+                                        <div class="form-row">
                                                 <div class="form-group col-md-6">
                                                     <label for="inputEmail4" class="col-form-label">First Name</label>
                                                     <input type="text" required="required" name="pat_fname" class="form-control" id="inputEmail4" placeholder="Patient's First Name">
@@ -103,8 +81,13 @@
                                                     <label for="inputEmail4" class="col-form-label">Date Of Birth</label>
                                                     <input type="text" required="required" name="pat_dob" class="form-control" id="inputEmail4" placeholder="DD/MM/YYYY">
                                                 </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="inputEmail4" class="col-form-label">Patient Password </label>
+                                                    <input type="text" required="required" name="pat_pass" class="form-control" id="inputEmail4" placeholder="password">
+                                                </div>
                                                
                                             </div>
+                                           
 
                                             <div class="form-group">
                                                 <label for="inputAddress" class="col-form-label">Address</label>
@@ -133,52 +116,84 @@
                                                     <input type="text" name="pat_number" value="<?php echo $patient_number;?>" class="form-control" id="inputZip">
                                                 </div>
                                             </div>
+                                       
 
-                                            <button type="submit" name="add_patient" class="ladda-button btn btn-primary" data-style="expand-right">Add Patient</button>
-
+                                            <div class="form-group">
+                                                <label for="past_illnesses" class="col-form-label">Past Illnesses</label>
+                                                <div id="past_illnesses_container">
+                                                    <input type="text" name="past_illnesses[]" class="form-control mb-2" placeholder="Enter past illness">
+                                                </div>
+                                                <button type="button" onclick="addField('past_illnesses_container', 'past_illnesses[]')" class="btn btn-secondary btn-sm">Add More</button>
+                                            </div>
+                                            <div class="form-group col-mid-4">
+                                                <label for="surgeries" class="col-form-label">Surgeries</label>
+                                                <div id="surgeries_container">
+                                                    <input type="text" name="surgeries[]" class="form-control mb-2" placeholder="Enter surgery details">
+                                                </div>
+                                                <button type="button" onclick="addField('surgeries_container', 'surgeries[]')" class="btn btn-secondary btn-sm">Add More</button>
+                                            </div>
+                                       
+                                            <div class="form-group">
+                                                <label for="chronic_conditions" class="col-form-label">Chronic Conditions</label>
+                                                <div id="chronic_conditions_container">
+                                                    <input type="text" name="chronic_conditions[]" class="form-control mb-2" placeholder="Enter chronic condition">
+                                                </div>
+                                                <button type="button" onclick="addField('chronic_conditions_container', 'chronic_conditions[]')" class="btn btn-secondary btn-sm">Add More</button>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="family_medical_history" class="col-form-label">Family Medical History</label>
+                                                <div id="family_medical_history_container">
+                                                    <input type="text" name="family_medical_history[]" class="form-control mb-2" placeholder="Enter family medical history">
+                                                </div>
+                                                <button type="button" onclick="addField('family_medical_history_container', 'family_medical_history[]')" class="btn btn-secondary btn-sm">Add More</button>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="medications" class="col-form-label">Medications</label>
+                                                <div id="medications_container">
+                                                    <div class="input-group mb-2">
+                                                        <input type="text" name="medications[][name]" class="form-control" placeholder="Medication Name">
+                                                        <input type="text" name="medications[][dose]" class="form-control" placeholder="Dose">
+                                                    </div>
+                                                </div>
+                                                <button type="button" onclick="addMedicationField()" class="btn btn-secondary btn-sm">Add More</button>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="allergies" class="col-form-label">Allergies</label>
+                                                <input type="text" name="allergies" class="form-control" placeholder="Enter allergies">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="investigation" class="col-form-label">Investigation</label>
+                                                <input type="text" name="investigation" class="form-control" placeholder="Enter investigation details">
+                                            </div>
+                                            <button type="submit" name="add_patient" class="ladda-button btn btn-primary" data-style="expand-right">Add The Record </button>
                                         </form>
-                                        <!--End Patient Form-->
-                                    </div> <!-- end card-body -->
-                                </div> <!-- end card-->
-                            </div> <!-- end col -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- end row -->
-
-                    </div> <!-- container -->
-
-                </div> <!-- content -->
-
-                <!-- Footer Start -->
+                    </div>
+                </div>
                 <?php include('assets/inc/footer.php');?>
-                <!-- end Footer -->
-
             </div>
-
-            <!-- ============================================================== -->
-            <!-- End Page content -->
-            <!-- ============================================================== -->
-
-
         </div>
-        <!-- END wrapper -->
-
-       
-        <!-- Right bar overlay-->
-        <div class="rightbar-overlay"></div>
-
-        <!-- Vendor js -->
-        <script src="assets/js/vendor.min.js"></script>
-
-        <!-- App js-->
-        <script src="assets/js/app.min.js"></script>
-
-        <!-- Loading buttons js -->
-        <script src="assets/libs/ladda/spin.js"></script>
-        <script src="assets/libs/ladda/ladda.js"></script>
-
-        <!-- Buttons init js-->
-        <script src="assets/js/pages/loading-btn.init.js"></script>
-        
+        <script>
+            function addField(containerId, fieldName) {
+                var container = document.getElementById(containerId);
+                var input = document.createElement("input");
+                input.type = "text";
+                input.name = fieldName;
+                input.className = "form-control mb-2";
+                input.placeholder = "Enter more details";
+                container.appendChild(input);
+            }
+            function addMedicationField() {
+                var container = document.getElementById("medications_container");
+                var div = document.createElement("div");
+                div.className = "input-group mb-2";
+                div.innerHTML = '<input type="text" name="medications[][name]" class="form-control" placeholder="Medication Name">' +
+                                '<input type="text" name="medications[][dose]" class="form-control" placeholder="Dose">';
+                container.appendChild(div);
+            }
+        </script>
     </body>
-
 </html>
