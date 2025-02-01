@@ -1,38 +1,59 @@
 <?php
 	session_start();
 	include('assets/inc/config.php');
-		if(isset($_POST['record_patient_det']))
-		{
-            $pat_fname=$_POST['pat_fname'];
-			$pat_lname=$_POST['pat_lname'];
-			$pat_number=$_POST['pat_number'];
-            $pat_phone=$_POST['pat_phone'];
-            $blood_type=$_POST['blood_type'];
-            $pat_addr=$_POST['pat_addr'];
-            $pat_dob = $_POST['pat_dob'];
-            $pat_emer_con = $_POST['pat_emer-con'];
-			$past_illnesses = json_encode($_POST['past_illnesses']);
-			$surgeries = json_encode($_POST['surgeries']);
-			$chronic_conditions = json_encode($_POST['chronic_conditions']);
-			$family_medical_history = json_encode($_POST['family_medical_history']);
-            $medications = json_encode($_POST['medications']);
-            $allergies = $_POST['allergies'];
-            $investigation = $_POST['investigation'];
-            
-			$query="insert into his_patients (past_illnesses, surgeries, chronic_conditions, family_medical_history, medications, allergies, investigation) values(?,?,?,?,?,?,?)";
-			$stmt = $mysqli->prepare($query);
-			$rc=$stmt->bind_param('sssssss', $past_illnesses, $surgeries, $chronic_conditions, $family_medical_history, $medications, $allergies, $investigation);
-			$stmt->execute();
-			
-			if($stmt)
-			{
-				$success = "Patient Details Added";
-			}
-			else {
-				$err = "Please Try Again Or Try Later";
-			}
-			
-		}
+    if (isset($_POST['add_patient'])) {
+      
+        $pat_fname = $_POST['pat_fname'];
+        $pat_lname = $_POST['pat_lname'];
+        $pat_dob = date('Y-m-d', strtotime($_POST['pat_dob']));
+
+        $pat_addr = $_POST['pat_addr'];
+        $pat_phone = $_POST['pat_phone'];
+        $pat_emer_con = $_POST['pat_emer_con'];
+        $blood_type = $_POST['blood_type'];
+        $past_illnesses = isset($_POST['past_illnesses']) ? json_encode($_POST['past_illnesses']) : json_encode([]);
+        $surgeries = isset($_POST['surgeries']) ? json_encode($_POST['surgeries']) : json_encode([]);
+        $chronic_conditions = isset($_POST['chronic_conditions']) ? json_encode($_POST['chronic_conditions']) : json_encode([]);
+        $family_medical_history = isset($_POST['family_medical_history']) ? json_encode($_POST['family_medical_history']) : json_encode([]);
+        $medications = isset($_POST['medications']) ? json_encode($_POST['medications']) : json_encode([]);
+        
+        $allergies = $_POST['allergies'];
+        $password = password_hash($_POST['patient_password'], PASSWORD_DEFAULT); // Secure password storage
+    
+        // Handling Investigation Image (if file upload)
+        if (isset($_FILES['investigation']) && $_FILES['investigation']['error'] == 0) {
+            $investigation = file_get_contents($_FILES['investigation']['tmp_name']);
+        } else {
+            $investigation = null; // No image uploaded
+        }
+    
+        $query = "INSERT INTO patient 
+            (first_name, last_name, date_of_birth, address, contact_information, emergency_contact_detail, 
+            blood_type, past_illnesses, surgeries, chronic_conditions, family_medical_history, 
+            medication, allergies, investigations, patient_password) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param(
+        'sssssssssssssss', 
+        $pat_fname, $pat_lname, $pat_dob, $pat_addr, $pat_phone, $pat_emer_con, 
+        $blood_type, $past_illnesses, $surgeries, $chronic_conditions, 
+        $family_medical_history, $medications, $allergies, $password, $investigation
+    );
+    
+    // Send image data
+    if ($investigation !== null) {
+        $stmt->send_long_data(14, $investigation);
+    }
+    
+    
+        if ($stmt->execute()) {
+            $success = "Patient Details Added";
+        } else {
+            $err = "Error: " . $stmt->error;
+        }
+    }
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,7 +85,8 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h4 class="header-title">Fill all fields</h4>
-                                        <form method="post">
+                                        <form method="post" enctype="multipart/form-data">
+
                                         <div class="form-row">
                                                 <div class="form-group col-md-6">
                                                     <label for="inputEmail4" class="col-form-label">First Name</label>
@@ -83,8 +105,8 @@
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="inputEmail4" class="col-form-label">Patient Password </label>
-                                                    <input type="text" required="required" name="pat_pass" class="form-control" id="inputEmail4" placeholder="password">
-                                                </div>
+                                                    <input type="text" required="required" name="patient_password" class="form-control" placeholder="password">
+                                                    </div>
                                                
                                             </div>
                                            
@@ -101,8 +123,8 @@
                                                 </div>
                                                 <div class="form-group col-md-4">
                                                     <label for="inputCity" class="col-form-label">Emergency contact detail</label>
-                                                    <input required="required" type="text" name="pat_emer-con" class="form-control" id="inputCity">
-                                                </div>
+                                                    <input required="required" type="text" name="pat_emer_con" class="form-control">
+                                                    </div>
                                                 <div class="form-group col-md-4">
                                                     <label for="inputState" class="col-form-label">Blood Type(trusted)</label>
                                                     <input required="required" type="text" name="blood_type" class="form-control" id="inputCity">
@@ -162,9 +184,11 @@
                                                 <input type="text" name="allergies" class="form-control" placeholder="Enter allergies">
                                             </div>
                                             <div class="form-group">
-                                                <label for="investigation" class="col-form-label">Investigation</label>
-                                                <input type="text" name="investigation" class="form-control" placeholder="Enter investigation details">
+                                                <label for="investigation" class="col-form-label">Investigation Image</label>
+                                                <input type="file" name="investigation" class="form-control">
                                             </div>
+                                            
+
                                             <button type="submit" name="add_patient" class="ladda-button btn btn-primary" data-style="expand-right">Add The Record </button>
                                         </form>
                                     </div>
