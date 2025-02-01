@@ -1,60 +1,129 @@
 <?php
-	session_start();
-	include('assets/inc/config.php');
-    if (isset($_POST['add_patient'])) {
-      
-        $pat_fname = $_POST['pat_fname'];
-        $pat_lname = $_POST['pat_lname'];
-        $pat_dob = date('Y-m-d', strtotime($_POST['pat_dob']));
+session_start();
+include('assets/inc/config.php'); // Ensure $mysqli is created in this file
 
-        $pat_addr = $_POST['pat_addr'];
-        $pat_phone = $_POST['pat_phone'];
-        $pat_emer_con = $_POST['pat_emer_con'];
-        $blood_type = $_POST['blood_type'];
-        $past_illnesses = isset($_POST['past_illnesses']) ? json_encode($_POST['past_illnesses']) : json_encode([]);
-        $surgeries = isset($_POST['surgeries']) ? json_encode($_POST['surgeries']) : json_encode([]);
-        $chronic_conditions = isset($_POST['chronic_conditions']) ? json_encode($_POST['chronic_conditions']) : json_encode([]);
-        $family_medical_history = isset($_POST['family_medical_history']) ? json_encode($_POST['family_medical_history']) : json_encode([]);
-        $medications = isset($_POST['medications']) ? json_encode($_POST['medications']) : json_encode([]);
-        
-        $allergies = $_POST['allergies'];
-        $password = password_hash($_POST['patient_password'], PASSWORD_DEFAULT); // Secure password storage
+if (isset($_POST['add_patient'])) {
+
+    // Collect patient data from the form
+    $pat_fname           = $_POST['pat_fname'];
+    $pat_lname           = $_POST['pat_lname'];
+    $pat_dob             = date('Y-m-d', strtotime($_POST['pat_dob']));
+    $pat_addr            = $_POST['pat_addr'];
+    $pat_phone           = $_POST['pat_phone'];
+    $pat_emer_con        = $_POST['pat_emer_con'];
+    $blood_type          = $_POST['blood_type'];
+    $past_illnesses      = isset($_POST['past_illnesses']) ? json_encode($_POST['past_illnesses']) : json_encode([]);
+    $surgeries           = isset($_POST['surgeries']) ? json_encode($_POST['surgeries']) : json_encode([]);
+    $chronic_conditions  = isset($_POST['chronic_conditions']) ? json_encode($_POST['chronic_conditions']) : json_encode([]);
+    $family_medical_history = isset($_POST['family_medical_history']) ? json_encode($_POST['family_medical_history']) : json_encode([]);
     
-        // Handling Investigation Image (if file upload)
-        if (isset($_FILES['investigation']) && $_FILES['investigation']['error'] == 0) {
-            $investigation = file_get_contents($_FILES['investigation']['tmp_name']);
-        } else {
-            $investigation = null; // No image uploaded
+    // Process medications array
+    $medications = [];
+    if (isset($_POST['medications'])) {
+        foreach ($_POST['medications'] as $medication) {
+            if (!empty($medication['name']) && !empty($medication['dose'])) {
+                $medications[] = [
+                    'name' => $medication['name'],
+                    'dose' => $medication['dose']
+                ];
+            }
         }
-    
-        $query = "INSERT INTO patient 
-            (first_name, last_name, date_of_birth, address, contact_information, emergency_contact_detail, 
-            blood_type, past_illnesses, surgeries, chronic_conditions, family_medical_history, 
-            medication, allergies, investigations, patient_password) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param(
-        'sssssssssssssss', 
-        $pat_fname, $pat_lname, $pat_dob, $pat_addr, $pat_phone, $pat_emer_con, 
-        $blood_type, $past_illnesses, $surgeries, $chronic_conditions, 
-        $family_medical_history, $medications, $allergies, $password, $investigation
-    );
-    
-    // Send image data
-    if ($investigation !== null) {
-        $stmt->send_long_data(14, $investigation);
     }
-    
-    
+    $medications_json = json_encode($medications);
+
+    $allergies = $_POST['allergies'];
+    $password  = password_hash($_POST['patient_password'], PASSWORD_DEFAULT);
+
+    // Initialize investigation filename variable
+    $investigationFileName = null;
+
+    // Check if a file was uploaded for the investigation
+    if (isset($_FILES['investigation']) && $_FILES['investigation']['error'] === 0) {
+
+        // Allowed file extensions
+        $allowedExts = array('jpg', 'jpeg', 'png', 'gif', 'pdf');
+
+        $filename = $_FILES['investigation']['name'];
+        $fileTmp  = $_FILES['investigation']['tmp_name'];
+        $fileExt  = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        // Validate file extension
+        if (in_array($fileExt, $allowedExts)) {
+
+            // Generate a unique file name and define the upload directory
+            $newFileName = uniqid('investigation_', true) . '.' . $fileExt;
+            $uploadDir   = 'uploads/';
+
+            // Create upload directory if it doesn't exist
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $destination = $uploadDir . $newFileName;
+
+            // Move the uploaded file to the destination folder
+            if (move_uploaded_file($fileTmp, $destination)) {
+                // Save the new file name to store in the database
+                $investigationFileName = $newFileName;
+            } else {
+                // Handle error moving file
+                die("Error: Failed to move uploaded file.");
+            }
+        } else {
+            die("Error: Invalid file type. Allowed types: " . implode(', ', $allowedExts));
+        }
+    } else {
+        // Optionally, you can handle the case where no file is uploaded
+        // For now, we simply set $investigationFileName to null or an empty string
+        $investigationFileName = '';
+    }
+
+    // Prepare the INSERT statement. Ensure that the number and order of parameters
+    // matches the columns in your patient table.
+    $query = "INSERT INTO patient 
+        (first_name, last_name, date_of_birth, address, contact_information, emergency_contact_detail, 
+         blood_type, past_illnesses, surgeries, chronic_conditions, family_medical_history, 
+         medication, allergies, investigations, patient_password) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    if ($stmt = $mysqli->prepare($query)) {
+        // Bind parameters: 15 strings (assuming all fields are stored as text)
+        // Order: first_name, last_name, date_of_birth, address, contact_information,
+        // emergency_contact_detail, blood_type, past_illnesses, surgeries, chronic_conditions,
+        // family_medical_history, medication, allergies, investigations, patient_password.
+        $stmt->bind_param(
+            'sssssssssssssss', 
+            $pat_fname, 
+            $pat_lname, 
+            $pat_dob, 
+            $pat_addr, 
+            $pat_phone, 
+            $pat_emer_con, 
+            $blood_type, 
+            $past_illnesses, 
+            $surgeries, 
+            $chronic_conditions, 
+            $family_medical_history, 
+            $medications_json, 
+            $allergies, 
+            $investigationFileName,  // Use the file name generated earlier
+            $password
+        );
+
         if ($stmt->execute()) {
-            $success = "Patient Details Added";
+            $success = "Patient Details Added Successfully";
+            // Optionally, you could redirect or display a success message here
         } else {
-            $err = "Error: " . $stmt->error;
+            $err = "Error executing query: " . $stmt->error;
+            echo $err;
         }
+        $stmt->close();
+    } else {
+        die("Error preparing statement: " . $mysqli->error);
     }
-    
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     
@@ -173,8 +242,8 @@
                                                 <label for="medications" class="col-form-label">Medications</label>
                                                 <div id="medications_container">
                                                     <div class="input-group mb-2">
-                                                        <input type="text" name="medications[][name]" class="form-control" placeholder="Medication Name">
-                                                        <input type="text" name="medications[][dose]" class="form-control" placeholder="Dose">
+                                                        <input type="text" name="medications[0][name]" class="form-control" placeholder="Medication Name">
+                                                        <input type="text" name="medications[0][dose]" class="form-control" placeholder="Dose">
                                                     </div>
                                                 </div>
                                                 <button type="button" onclick="addMedicationField()" class="btn btn-secondary btn-sm">Add More</button>
@@ -210,14 +279,23 @@
                 input.placeholder = "Enter more details";
                 container.appendChild(input);
             }
-            function addMedicationField() {
-                var container = document.getElementById("medications_container");
-                var div = document.createElement("div");
-                div.className = "input-group mb-2";
-                div.innerHTML = '<input type="text" name="medications[][name]" class="form-control" placeholder="Medication Name">' +
-                                '<input type="text" name="medications[][dose]" class="form-control" placeholder="Dose">';
-                container.appendChild(div);
-            }
+            
+        let medicationIndex = 1; // Start from 1 because the first field is already present
+
+        function addMedicationField() {
+            const container = document.getElementById('medications_container');
+
+            const newField = document.createElement('div');
+            newField.classList.add('input-group', 'mb-2');
+
+            newField.innerHTML = `
+                <input type="text" name="medications[${medicationIndex}][name]" class="form-control" placeholder="Medication Name">
+                <input type="text" name="medications[${medicationIndex}][dose]" class="form-control" placeholder="Dose">
+            `;
+
+            container.appendChild(newField);
+            medicationIndex++;
+        }
         </script>
     </body>
 </html>
