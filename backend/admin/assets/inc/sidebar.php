@@ -30,7 +30,7 @@
                         <li>
                             <a href="his_admin_view_patients.php">View Patients</a>
                         </li>
-                      
+
                         <li>
                             <a href="his_admin_manage_patient.php">Manage Patients</a>
                         </li>
@@ -41,18 +41,18 @@
                 <li>
                     <a href="javascript: void(0);">
                         <i class="mdi mdi-doctor"></i>
-                        <span> Employees </span>
+                        <span> Doctors </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <ul class="nav-second-level" aria-expanded="false">
                         <li>
-                            <a href="his_admin_add_employee.php">Add Employee</a>
+                            <a href="his_admin_add_employee.php">Add Doctor</a>
                         </li>
                         <li>
-                            <a href="his_admin_view_employee.php">View Employees</a>
+                            <a href="his_admin_view_employee.php">View Doctor</a>
                         </li>
                         <li>
-                            <a href="his_admin_manage_employee.php">Manage Employees</a>
+                            <a href="his_admin_manage_employee.php">Manage Doctor</a>
                         </li>
                         <hr>
                     </ul>
