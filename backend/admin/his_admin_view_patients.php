@@ -107,7 +107,7 @@
                                                    
                                                     <td><?php echo $row->blood_type;?></td>
                                                     
-                                                    <td><a href="his_admin_view_single_patient.php?pat_id=<?php echo $row->patient_id;?>&&pat_phone=<?php echo $row->contact_information;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a></td>
+                                                    <td><a href="his_admin_view_single_patient.php?patient_id=<?php echo $row->patient_id;?>&&pat_phone=<?php echo $row->contact_information;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a></td>
                                                 </tr>
                                                 </tbody>
                                             <?php  $cnt = $cnt +1 ; }?>
