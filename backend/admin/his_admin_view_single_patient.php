@@ -4,6 +4,14 @@ include('assets/inc/config.php');
 include('assets/inc/checklogin.php');
 check_login();
 $aid = $_SESSION['ad_id'];
+
+// Sanitize and validate GET parameters
+$patient_id = filter_input(INPUT_GET, 'patient_id', FILTER_VALIDATE_INT);
+$pat_phone  = filter_input(INPUT_GET, 'pat_phone', FILTER_SANITIZE_STRING);
+
+if (!$patient_id || !$pat_phone) {
+    die("Invalid patient ID or phone number.");
+}
 ?>
 
 <!DOCTYPE html>
@@ -28,238 +36,220 @@ $aid = $_SESSION['ad_id'];
         <!-- Start Page Content here -->
         <!-- ============================================================== -->
 
-        <!--Get Details Of A Single User And Display Them Here-->
+        <!-- Get Details Of A Single User And Display Them Here -->
         <?php
-        $pat_number = $_GET['pat_phone'];
-        $pat_id = $_GET['pat_id'];
-        $ret = "SELECT  * FROM his_patients WHERE pat_id=?";
+        // Fetch patient details
+        $ret = "SELECT * FROM patient WHERE patient_id = ?";
         $stmt = $mysqli->prepare($ret);
-        $stmt->bind_param('i', $pat_id);
-        $stmt->execute(); //ok
+        $stmt->bind_param('i', $patient_id);
+        $stmt->execute();
         $res = $stmt->get_result();
-        //$cnt=1;
-        while ($row = $res->fetch_object()) {
-            $mysqlDateTime = $row->pat_date_joined;
+
+        if ($res->num_rows === 0) {
+            die("Patient not found.");
+        }
+
+        $row = $res->fetch_object();
+        // Assign the date recorded from the new column
+        $mysqlDateTime = $row->pat_date_joined;
         ?>
-            <div class="content-page">
-                <div class="content">
 
-                    <!-- Start Content-->
-                    <div class="container-fluid">
+        <div class="content-page">
+            <div class="content">
 
-                        <!-- start page title -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box">
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Patients</a></li>
-                                            <li class="breadcrumb-item active">View Patients</li>
-                                        </ol>
-                                    </div>
-                                    <h4 class="page-title"><?php echo $row->pat_fname; ?> <?php echo $row->pat_lname; ?>'s Profile</h4>
+                <!-- Start Content-->
+                <div class="container-fluid">
+
+                    <!-- Start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Patients</a></li>
+                                        <li class="breadcrumb-item active">View Patients</li>
+                                    </ol>
                                 </div>
+                                <h4 class="page-title"><?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?>'s Profile</h4>
                             </div>
                         </div>
-                        <!-- end page title -->
+                    </div>
+                    <!-- End page title -->
 
-                        <div class="row">
-                            <div class="col-lg-4 col-xl-4">
-                                <div class="card-box text-center">
-                                    <img src="assets/images/users/patient.png" class="rounded-circle avatar-lg img-thumbnail"
-                                        alt="profile-image">
+                    <div class="row">
+                        <div class="col-lg-4 col-xl-4">
+                            <div class="card-box text-center">
+                                <img src="assets/images/users/patient.png" class="rounded-circle avatar-lg img-thumbnail" alt="profile-image">
 
+                                <div class="text-left mt-3">
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Full Name :</strong> <span class="ml-2"><?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?></span>
+                                    </p>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Mobile :</strong><span class="ml-2"><?php echo htmlspecialchars($row->contact_information); ?></span>
+                                    </p>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Address :</strong> <span class="ml-2"><?php echo htmlspecialchars($row->address); ?></span>
+                                    </p>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Date Of Birth :</strong> <span class="ml-2"><?php echo htmlspecialchars($row->date_of_birth); ?></span>
+                                    </p>
+                                    <hr>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Date Recorded :</strong> <span class="ml-2"><?php echo date("d/m/Y - h:i", strtotime($mysqlDateTime)); ?></span>
+                                    </p>
+                                    <hr>
+                                </div>
+                            </div> <!-- end card-box -->
+                        </div> <!-- end col -->
 
-                                    <div class="text-left mt-3">
-
-                                        <p class="text-muted mb-2 font-13"><strong>Full Name :</strong> <span class="ml-2"><?php echo $row->pat_fname; ?> <?php echo $row->pat_lname; ?></span></p>
-                                        <p class="text-muted mb-2 font-13"><strong>Mobile :</strong><span class="ml-2"><?php echo $row->pat_phone; ?></span></p>
-                                        <p class="text-muted mb-2 font-13"><strong>Address :</strong> <span class="ml-2"><?php echo $row->pat_addr; ?></span></p>
-                                        <p class="text-muted mb-2 font-13"><strong>Date Of Birth :</strong> <span class="ml-2"><?php echo $row->pat_dob; ?></span></p>
-                                        <hr>
-                                        <p class="text-muted mb-2 font-13"><strong>Date Recorded :</strong> <span class="ml-2"><?php echo date("d/m/Y - h:m", strtotime($mysqlDateTime)); ?></span></p>
-                                        <hr>
-
-
-
-
-                                    </div>
-
-                                </div> <!-- end card-box -->
-
-                            </div> <!-- end col-->
-
-                        <?php } ?>
                         <div class="col-lg-8 col-xl-8">
                             <div class="card-box">
                                 <ul class="nav nav-pills navtab-bg nav-justified">
                                     <li class="nav-item">
-                                        <a href="#aboutme" data-toggle="tab" aria-expanded="false" class="nav-link active">
-                                            Prescription
-                                        </a>
+                                        <a href="#medical-history" data-toggle="tab" aria-expanded="false" class="nav-link active">Medical History</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#timeline" data-toggle="tab" aria-expanded="true" class="nav-link ">
-                                            Vitals
-                                        </a>
+                                        <a href="#medications" data-toggle="tab" aria-expanded="true" class="nav-link">Medications</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#settings" data-toggle="tab" aria-expanded="false" class="nav-link">
-                                            Lab Records
-                                        </a>
+                                        <a href="#allergies" data-toggle="tab" aria-expanded="false" class="nav-link">Allergies</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#investigation" data-toggle="tab" aria-expanded="false" class="nav-link">Investigation</a>
                                     </li>
                                 </ul>
-                                <!--Medical History-->
+
+                                <!-- Tab Content -->
                                 <div class="tab-content">
-                                    <div class="tab-pane show active" id="aboutme">
+                                    <!-- Medical History Tab -->
+                                    <div class="tab-pane show active" id="medical-history">
                                         <ul class="list-unstyled timeline-sm">
                                             <?php
-                                            $pres_pat_number = $_GET['pat_number'];
-                                            $ret = "SELECT  * FROM his_prescriptions WHERE pres_pat_number ='$pres_pat_number'";
-                                            $stmt = $mysqli->prepare($ret);
-                                            // $stmt->bind_param('i',$pres_pat_number );
-                                            $stmt->execute(); //ok
-                                            $res = $stmt->get_result();
-                                            //$cnt=1;
-
-                                            while ($row = $res->fetch_object()) {
-                                                $mysqlDateTime = $row->pres_date; //trim timestamp to date
-
+                                            $past_illnesses = json_decode($row->past_illnesses, true);
+                                            $surgeries = json_decode($row->surgeries, true);
+                                            $chronic_conditions = json_decode($row->chronic_conditions, true);
+                                            $family_medical_history = json_decode($row->family_medical_history, true);
                                             ?>
-                                                <li class="timeline-sm-item">
-                                                    <span class="timeline-sm-date"><?php echo date("Y-m-d", strtotime($mysqlDateTime)); ?></span>
-                                                    <h5 class="mt-0 mb-1"><?php echo $row->pres_pat_ailment; ?></h5>
-                                                    <p class="text-muted mt-2">
-                                                        <?php echo $row->pres_ins; ?>
-                                                    </p>
-
-                                                </li>
-                                            <?php } ?>
+                                            <li class="timeline-sm-item">
+                                                <h5 class="mt-0 mb-1">Past Illnesses</h5>
+                                                <p class="text-muted mt-2"><?php echo !empty($past_illnesses) ? implode(', ', $past_illnesses) : 'No past illnesses recorded'; ?></p>
+                                            </li>
+                                            <li class="timeline-sm-item">
+                                                <h5 class="mt-0 mb-1">Surgeries</h5>
+                                                <p class="text-muted mt-2"><?php echo !empty($surgeries) ? implode(', ', $surgeries) : 'No surgeries recorded'; ?></p>
+                                            </li>
+                                            <li class="timeline-sm-item">
+                                                <h5 class="mt-0 mb-1">Chronic Conditions</h5>
+                                                <p class="text-muted mt-2"><?php echo !empty($chronic_conditions) ? implode(', ', $chronic_conditions) : 'No chronic conditions recorded'; ?></p>
+                                            </li>
+                                            <li class="timeline-sm-item">
+                                                <h5 class="mt-0 mb-1">Family Medical History</h5>
+                                                <p class="text-muted mt-2"><?php echo !empty($family_medical_history) ? implode(', ', $family_medical_history) : 'No family medical history recorded'; ?></p>
+                                            </li>
                                         </ul>
+                                    </div> <!-- end medical-history tab -->
 
-                                    </div> <!-- end tab-pane -->
-                                    <!-- end Prescription section content -->
-
-                                    <div class="tab-pane show " id="timeline">
+                                    <!-- Medications Tab -->
+                                    <div class="tab-pane" id="medications">
                                         <div class="table-responsive">
                                             <table class="table table-borderless mb-0">
                                                 <thead class="thead-light">
                                                     <tr>
-                                                        <th>Body Temperature</th>
-                                                        <th>Heart Rate/Pulse</th>
-                                                        <th>Respiratory Rate</th>
-                                                        <th>Blood Pressure</th>
-                                                        <th>Date Recorded</th>
+                                                        <th>Medication Name</th>
+                                                        <th>Dosage</th>
                                                     </tr>
                                                 </thead>
-                                                <?php
-                                                $vit_pat_number = $_GET['pat_number'];
-                                                $ret = "SELECT  * FROM his_vitals WHERE vit_pat_number ='$vit_pat_number'";
-                                                $stmt = $mysqli->prepare($ret);
-                                                // $stmt->bind_param('i',$vit_pat_number );
-                                                $stmt->execute(); //ok
-                                                $res = $stmt->get_result();
-                                                //$cnt=1;
+                                                <tbody>
+                                                    <?php
+                                                    // Decode the medication JSON string
+                                                    $medications = json_decode($row->medication, true);
 
-                                                while ($row = $res->fetch_object()) {
-                                                    $mysqlDateTime = $row->vit_daterec; //trim timestamp to date
+                                                    // Check if JSON decoding was successful
+                                                    if (json_last_error() !== JSON_ERROR_NONE) {
+                                                        error_log("JSON decoding error: " . json_last_error_msg());
+                                                        echo "<tr><td colspan='2' class='text-danger'>Error decoding medication data</td></tr>";
+                                                    } elseif (is_array($medications) && !empty($medications)) {
+                                                        foreach ($medications as $medication) {
+                                                            $med_name = isset($medication['name']) ? htmlspecialchars($medication['name']) : "N/A";
+                                                            $med_dose = isset($medication['dose']) ? htmlspecialchars($medication['dose']) : "N/A";
 
-                                                ?>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td><?php echo $row->vit_bodytemp; ?>°C</td>
-                                                            <td><?php echo $row->vit_heartpulse; ?>BPM</td>
-                                                            <td><?php echo $row->vit_resprate; ?>bpm</td>
-                                                            <td><?php echo $row->vit_bloodpress; ?>mmHg</td>
-                                                            <td><?php echo date("Y-m-d", strtotime($mysqlDateTime)); ?></td>
-                                                        </tr>
-                                                    </tbody>
-                                                <?php } ?>
+                                                            echo "<tr>
+                                                                    <td>{$med_name}</td>
+                                                                    <td>{$med_dose}</td>
+                                                                  </tr>";
+                                                        }
+                                                    } else {
+                                                        echo "<tr><td colspan='2' class='text-muted'>No medications recorded</td></tr>";
+                                                    }
+                                                    ?>
+                                                </tbody>
                                             </table>
                                         </div>
-                                    </div>
-                                    <!-- end vitals content-->
+                                    </div> <!-- end medications tab -->
 
-                                    <div class="tab-pane" id="settings">
+                                    <!-- Allergies Tab -->
+                                    <div class="tab-pane" id="allergies">
                                         <ul class="list-unstyled timeline-sm">
                                             <?php
-                                            $lab_pat_number = $_GET['pat_number'];
-                                            $ret = "SELECT  * FROM his_laboratory WHERE lab_pat_number  = '$lab_pat_number'";
-                                            $stmt = $mysqli->prepare($ret);
-                                            // $stmt->bind_param('i',$lab_pat_number);
-                                            $stmt->execute(); //ok
-                                            $res = $stmt->get_result();
-                                            //$cnt=1;
-
-                                            while ($row = $res->fetch_object()) {
-                                                $mysqlDateTime = $row->lab_date_rec; //trim timestamp to date
-
+                                            $allergies = $row->allergies;
+                                            if (!empty($allergies)) {
+                                                echo "<li class='timeline-sm-item'>
+                                                        <h5 class='mt-0 mb-1'>Allergy</h5>
+                                                        <p class='text-muted mt-2'>" . htmlspecialchars($allergies) . "</p>
+                                                      </li>";
+                                            } else {
+                                                echo "<li class='timeline-sm-item'><p class='text-muted'>No allergies recorded</p></li>";
+                                            }
                                             ?>
-                                                <li class="timeline-sm-item">
-                                                    <span class="timeline-sm-date"><?php echo date("Y-m-d", strtotime($mysqlDateTime)); ?></span>
-                                                    <h3 class="mt-0 mb-1"><?php echo $row->lab_pat_ailment; ?></h3>
-                                                    <hr>
-                                                    <h5>
-                                                        Laboratory Tests
-                                                    </h5>
-
-                                                    <p class="text-muted mt-2">
-                                                        <?php echo $row->lab_pat_tests; ?>
-                                                    </p>
-                                                    <hr>
-                                                    <h5>
-                                                        Laboratory Results
-                                                    </h5>
-
-                                                    <p class="text-muted mt-2">
-                                                        <?php echo $row->lab_pat_results; ?>
-                                                    </p>
-                                                    <hr>
-
-                                                </li>
-                                            <?php } ?>
                                         </ul>
-                                    </div>
-                                </div>
-                                <!-- end lab records content-->
+                                    </div> <!-- end allergies tab -->
 
-                            </div> <!-- end tab-content -->
-                        </div> <!-- end card-box-->
+                                    <!-- Investigation Tab -->
+                                    <div class="tab-pane" id="investigation">
+                                        <ul class="list-unstyled timeline-sm">
+                                            <?php
+                                            // Check if an investigation file name is stored in the database
+                                            if (!empty($row->investigations)) {
+                                                // Build the file path
+                                                $filePath = 'uploads/' . $row->investigations;
 
+                                                // Check if the file exists on the server
+                                                if (file_exists($filePath)) {
+                                                    echo "<li class='timeline-sm-item'>
+                                                            <h5 class='mt-0 mb-1'>Investigation Report</h5>
+                                                            <hr>
+                                                            <img src='$filePath' alt='Investigation Image' class='img-fluid' style='max-width: 100%; height: auto;'>
+                                                            <hr>
+                                                          </li>";
+                                                } else {
+                                                    echo "<li class='timeline-sm-item'><p class='text-danger'>Investigation file not found.</p></li>";
+                                                }
+                                            } else {
+                                                echo "<li class='timeline-sm-item'><p class='text-muted'>No investigation record found.</p></li>";
+                                            }
+                                            ?>
+                                        </ul>
+                                    </div> <!-- end investigation tab -->
+
+                                </div> <!-- end tab-content -->
+                            </div> <!-- end card-box -->
                         </div> <!-- end col -->
-                    </div>
-                    <!-- end row-->
-
+                    </div> <!-- end row -->
                 </div> <!-- container -->
-
             </div> <!-- content -->
 
             <!-- Footer Start -->
             <?php include('assets/inc/footer.php'); ?>
             <!-- end Footer -->
-
+        </div>
     </div>
-
-
-    <!-- ============================================================== -->
-    <!-- End Page content -->
-    <!-- ============================================================== -->
-
-
-    </div>
-    <!-- END wrapper -->
-
-    <!-- Right bar overlay-->
-    <div class="rightbar-overlay"></div>
 
     <!-- Vendor js -->
     <script src="assets/js/vendor.min.js"></script>
 
     <!-- App js -->
     <script src="assets/js/app.min.js"></script>
-
 </body>
-
-
 </html>
