@@ -87,7 +87,7 @@
                                                 *get details of allpatients
                                                 *
                                             */
-                                                $ret="SELECT * FROM  his_patients ORDER BY RAND() "; 
+                                                $ret="SELECT * FROM  patient ORDER BY RAND() "; 
                                                 //sql code to get to ten docs  randomly
                                                 $stmt= $mysqli->prepare($ret) ;
                                                 $stmt->execute() ;//ok
@@ -100,14 +100,14 @@
                                                 <tbody>
                                                 <tr>
                                                     <td><?php echo $cnt;?></td>
-                                                    <td><?php echo $row->pat_fname;?> <?php echo $row->pat_lname;?></td>
-                                                    <td><?php echo $row->pat_phone;?></td>
-                                                    <td><?php echo $row->pat_addr;?></td>
-                                                    <td><?php echo $row->pat_dob;?></td>
+                                                    <td><?php echo $row->first_name;?> <?php echo $row->last_name;?></td>
+                                                    <td><?php echo $row->contact_information;?></td>
+                                                    <td><?php echo $row->address;?></td>
+                                                    <td><?php echo $row->date_of_birth;?></td>
                                                    
                                                     <td><?php echo $row->blood_type;?></td>
                                                     
-                                                    <td><a href="his_admin_view_single_patient.php?pat_id=<?php echo $row->pat_id;?>&&pat_phone=<?php echo $row->pat_phone;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a></td>
+                                                    <td><a href="his_admin_view_single_patient.php?pat_id=<?php echo $row->patient_id;?>&&pat_phone=<?php echo $row->contact_information;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a></td>
                                                 </tr>
                                                 </tbody>
                                             <?php  $cnt = $cnt +1 ; }?>
