@@ -25,7 +25,7 @@
                     </a>
                     <ul class="nav-second-level" aria-expanded="false">
                         <li>
-                            <a href="his_admin_register_patient.php">Record a Patien</a>
+                            <a href="his_admin_register_patient.php">Register a Patien</a>
                         </li>
                         <li>
                             <a href="his_admin_view_patients.php">View Patients</a>
