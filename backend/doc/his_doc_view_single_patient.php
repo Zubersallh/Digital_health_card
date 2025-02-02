@@ -3,7 +3,7 @@ session_start();
 include('assets/inc/config.php');
 include('assets/inc/checklogin.php');
 check_login();
-$aid = $_SESSION['ad_id'];
+$aid = $_SESSION['doc_id'];
 
 // Sanitize and validate GET parameters
 $patient_id = filter_input(INPUT_GET, 'patient_id', FILTER_VALIDATE_INT);

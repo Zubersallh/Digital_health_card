@@ -3,7 +3,7 @@
   include('assets/inc/config.php');
   include('assets/inc/checklogin.php');
   check_login();
-  $aid=$_SESSION['ad_id'];
+  $aid=$_SESSION['doc_id'];
 ?>
 
 <!DOCTYPE html>
