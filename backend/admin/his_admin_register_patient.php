@@ -123,10 +123,8 @@ if (isset($_POST['add_patient'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-    
     <?php include('assets/inc/head.php');?>
     <body>
         <div id="wrapper">
@@ -156,7 +154,8 @@ if (isset($_POST['add_patient'])) {
                                         <h4 class="header-title">Fill all fields</h4>
                                         <form method="post" enctype="multipart/form-data">
 
-                                        <div class="form-row">
+                                            <!-- Form fields for patient details -->
+                                            <div class="form-row">
                                                 <div class="form-group col-md-6">
                                                     <label for="inputEmail4" class="col-form-label">First Name</label>
                                                     <input type="text" required="required" name="pat_fname" class="form-control" id="inputEmail4" placeholder="Patient's First Name">
@@ -175,10 +174,8 @@ if (isset($_POST['add_patient'])) {
                                                 <div class="form-group col-md-6">
                                                     <label for="inputEmail4" class="col-form-label">Patient Password </label>
                                                     <input type="text" required="required" name="patient_password" class="form-control" placeholder="password">
-                                                    </div>
-                                               
+                                                </div>
                                             </div>
-                                           
 
                                             <div class="form-group">
                                                 <label for="inputAddress" class="col-form-label">Address</label>
@@ -193,22 +190,14 @@ if (isset($_POST['add_patient'])) {
                                                 <div class="form-group col-md-4">
                                                     <label for="inputCity" class="col-form-label">Emergency contact detail</label>
                                                     <input required="required" type="text" name="pat_emer_con" class="form-control">
-                                                    </div>
+                                                </div>
                                                 <div class="form-group col-md-4">
                                                     <label for="inputState" class="col-form-label">Blood Type(trusted)</label>
                                                     <input required="required" type="text" name="blood_type" class="form-control" id="inputCity">
                                                 </div>
-                                                <div class="form-group col-md-2" style="display:none">
-                                                    <?php 
-                                                        $length = 5;    
-                                                        $patient_number =  substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,$length);
-                                                    ?>
-                                                    <label for="inputZip" class="col-form-label">Patient Number</label>
-                                                    <input type="text" name="pat_number" value="<?php echo $patient_number;?>" class="form-control" id="inputZip">
-                                                </div>
                                             </div>
-                                       
 
+                                            <!-- Dynamic fields for past illnesses, surgeries, etc. -->
                                             <div class="form-group">
                                                 <label for="past_illnesses" class="col-form-label">Past Illnesses</label>
                                                 <div id="past_illnesses_container">
@@ -216,14 +205,15 @@ if (isset($_POST['add_patient'])) {
                                                 </div>
                                                 <button type="button" onclick="addField('past_illnesses_container', 'past_illnesses[]')" class="btn btn-secondary btn-sm">Add More</button>
                                             </div>
-                                            <div class="form-group col-mid-4">
+
+                                            <div class="form-group">
                                                 <label for="surgeries" class="col-form-label">Surgeries</label>
                                                 <div id="surgeries_container">
                                                     <input type="text" name="surgeries[]" class="form-control mb-2" placeholder="Enter surgery details">
                                                 </div>
                                                 <button type="button" onclick="addField('surgeries_container', 'surgeries[]')" class="btn btn-secondary btn-sm">Add More</button>
                                             </div>
-                                       
+
                                             <div class="form-group">
                                                 <label for="chronic_conditions" class="col-form-label">Chronic Conditions</label>
                                                 <div id="chronic_conditions_container">
@@ -231,6 +221,7 @@ if (isset($_POST['add_patient'])) {
                                                 </div>
                                                 <button type="button" onclick="addField('chronic_conditions_container', 'chronic_conditions[]')" class="btn btn-secondary btn-sm">Add More</button>
                                             </div>
+
                                             <div class="form-group">
                                                 <label for="family_medical_history" class="col-form-label">Family Medical History</label>
                                                 <div id="family_medical_history_container">
@@ -238,6 +229,8 @@ if (isset($_POST['add_patient'])) {
                                                 </div>
                                                 <button type="button" onclick="addField('family_medical_history_container', 'family_medical_history[]')" class="btn btn-secondary btn-sm">Add More</button>
                                             </div>
+
+                                            <!-- Dynamic fields for medications -->
                                             <div class="form-group">
                                                 <label for="medications" class="col-form-label">Medications</label>
                                                 <div id="medications_container">
@@ -248,16 +241,20 @@ if (isset($_POST['add_patient'])) {
                                                 </div>
                                                 <button type="button" onclick="addMedicationField()" class="btn btn-secondary btn-sm">Add More</button>
                                             </div>
+
+                                            <!-- Allergies field -->
                                             <div class="form-group">
                                                 <label for="allergies" class="col-form-label">Allergies</label>
                                                 <input type="text" name="allergies" class="form-control" placeholder="Enter allergies">
                                             </div>
+
+                                            <!-- Investigation file upload -->
                                             <div class="form-group">
                                                 <label for="investigation" class="col-form-label">Investigation Image</label>
                                                 <input type="file" name="investigation" class="form-control">
                                             </div>
-                                            
 
+                                            <!-- Submit button -->
                                             <button type="submit" name="add_patient" class="ladda-button btn btn-primary" data-style="expand-right">Add The Record </button>
                                         </form>
                                     </div>
@@ -269,33 +266,85 @@ if (isset($_POST['add_patient'])) {
                 <?php include('assets/inc/footer.php');?>
             </div>
         </div>
+
+        <!-- JavaScript for dynamic fields and delete functionality -->
         <script>
             function addField(containerId, fieldName) {
                 var container = document.getElementById(containerId);
+                
+                // Create a wrapper div for the input and delete button
+                var wrapper = document.createElement("div");
+                wrapper.className = "input-group mb-2";
+
+                // Create the input field
                 var input = document.createElement("input");
                 input.type = "text";
                 input.name = fieldName;
-                input.className = "form-control mb-2";
+                input.className = "form-control";
                 input.placeholder = "Enter more details";
-                container.appendChild(input);
+
+                // Create the delete button
+                var deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "btn btn-danger";
+                deleteButton.innerHTML = "Delete";
+                deleteButton.onclick = function() {
+                    // Remove the wrapper div when the delete button is clicked
+                    container.removeChild(wrapper);
+                };
+
+                // Append the input and delete button to the wrapper
+                wrapper.appendChild(input);
+                wrapper.appendChild(deleteButton);
+
+                // Append the wrapper to the container
+                container.appendChild(wrapper);
             }
-            
-        let medicationIndex = 1; // Start from 1 because the first field is already present
 
-        function addMedicationField() {
-            const container = document.getElementById('medications_container');
+            let medicationIndex = 1; // Start from 1 because the first field is already present
 
-            const newField = document.createElement('div');
-            newField.classList.add('input-group', 'mb-2');
+            function addMedicationField() {
+                const container = document.getElementById('medications_container');
 
-            newField.innerHTML = `
-                <input type="text" name="medications[${medicationIndex}][name]" class="form-control" placeholder="Medication Name">
-                <input type="text" name="medications[${medicationIndex}][dose]" class="form-control" placeholder="Dose">
-            `;
+                // Create a wrapper div for the medication fields and delete button
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('input-group', 'mb-2');
 
-            container.appendChild(newField);
-            medicationIndex++;
-        }
+                // Create the medication name input
+                const nameInput = document.createElement('input');
+                nameInput.type = "text";
+                nameInput.name = `medications[${medicationIndex}][name]`;
+                nameInput.className = "form-control";
+                nameInput.placeholder = "Medication Name";
+
+                // Create the dose input
+                const doseInput = document.createElement('input');
+                doseInput.type = "text";
+                doseInput.name = `medications[${medicationIndex}][dose]`;
+                doseInput.className = "form-control";
+                doseInput.placeholder = "Dose";
+
+                // Create the delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.type = "button";
+                deleteButton.className = "btn btn-danger";
+                deleteButton.innerHTML = "Delete";
+                deleteButton.onclick = function() {
+                    // Remove the wrapper div when the delete button is clicked
+                    container.removeChild(wrapper);
+                };
+
+                // Append the inputs and delete button to the wrapper
+                wrapper.appendChild(nameInput);
+                wrapper.appendChild(doseInput);
+                wrapper.appendChild(deleteButton);
+
+                // Append the wrapper to the container
+                container.appendChild(wrapper);
+
+                // Increment the medication index for the next field
+                medicationIndex++;
+            }
         </script>
     </body>
 </html>

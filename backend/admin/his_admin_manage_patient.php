@@ -7,7 +7,7 @@
   if(isset($_GET['delete']))
   {
         $id=intval($_GET['delete']);
-        $adn="delete from his_patients where pat_id=?";
+        $adn="delete from patient where patient_id=?";
         $stmt= $mysqli->prepare($adn);
         $stmt->bind_param('i',$id);
         $stmt->execute();
@@ -99,7 +99,7 @@
                                                 <th data-toggle="true">Patient</th>
                                                 <th data-hide="phone">Number</th>
                                                 <th data-hide="phone">Address</th>
-                                                <th data-hide="phone">Category</th>
+                                                <th data-hide="phone">blood type</th>
                                                 <th data-hide="phone">Action</th>
                                             </tr>
                                             </thead>
@@ -108,7 +108,7 @@
                                                 *get details of allpatients
                                                 *
                                             */
-                                                $ret="SELECT * FROM  his_patients ORDER BY RAND() "; 
+                                                $ret="SELECT * FROM  patient ORDER BY RAND() "; 
                                                 //sql code to get to ten docs  randomly
                                                 $stmt= $mysqli->prepare($ret) ;
                                                 $stmt->execute() ;//ok
@@ -121,15 +121,15 @@
                                                 <tbody>
                                                 <tr>
                                                     <td><?php echo $cnt;?></td>
-                                                    <td><?php echo $row->pat_fname;?> <?php echo $row->pat_lname;?></td>
-                                                    <td><?php echo $row->pat_number;?></td>
-                                                    <td><?php echo $row->pat_addr;?></td>
-                                                    <td><?php echo $row->pat_type;?></td>
+                                                    <td><?php echo $row->first_name;?> <?php echo $row->last_name;?></td>
+                                                    <td><?php echo $row->contact_information;?></td>
+                                                    <td><?php echo $row->address;?></td>
+                                                    <td><?php echo $row->blood_type;?></td>
                                                     
                                                     <td>
-                                                        <a href="his_admin_manage_patient.php?delete=<?php echo $row->pat_id;?>" class="badge badge-danger"><i class=" mdi mdi-trash-can-outline "></i> Delete</a>
-                                                        <a href="his_admin_view_single_patient.php?pat_id=<?php echo $row->pat_id;?>&&pat_number=<?php echo $row->pat_number;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a>
-                                                        <a href="his_admin_update_single_patient.php?pat_id=<?php echo $row->pat_id;?>" class="badge badge-primary"><i class="mdi mdi-check-box-outline "></i> Update</a>
+                                                        <a href="his_admin_manage_patient.php?delete=<?php echo $row->patient_id;?>" class="badge badge-danger"><i class=" mdi mdi-trash-can-outline "></i> Delete</a>
+                                                        <a href="his_admin_view_single_patient.php?patient_id=<?php echo $row->patient_id;?>&&pat_phone=<?php echo $row->contact_information;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a>
+                                                        <a href="his_admin_update_single_patient.php?pat_id=<?php echo $row->patient_id;?>" class="badge badge-primary"><i class="mdi mdi-check-box-outline "></i> Update</a>
                                                     </td>
                                                 </tr>
                                                 </tbody>
