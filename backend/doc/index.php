@@ -28,7 +28,7 @@ if (isset($_POST['doc_login'])) {
 
 <head>
     <meta charset="utf-8" />
-    <title>Hospital Management System -A Super Responsive Information System</title>
+    <title>Digital Health Card</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="" name="description" />
     <meta content="" name="MartDevelopers" />

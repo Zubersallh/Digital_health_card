@@ -1,27 +1,36 @@
 <?php
 session_start();
-include('../doc/assets/inc/config.php'); //get configuration file
+include('../doc/assets/inc/config.php'); // Get configuration file
+
 if (isset($_POST['pat_login'])) {
     $pat_number = $_POST['pat_number'];
-    //$doc_email = $_POST['doc_ea']
-    $pat_pwd = sha1(md5($_POST['pat_pwd'])); //double encrypt to increase security
-    $stmt = $mysqli->prepare("SELECT doc_number, doc_pwd, doc_id FROM his_docs WHERE  doc_number=? AND doc_pwd=? "); //sql to log in user
-    $stmt->bind_param('ss', $doc_number, $doc_pwd); //bind fetched parameters
-    $stmt->execute(); //execute bind
-    $stmt->bind_result($doc_number, $doc_pwd, $doc_id); //bind result
-    $rs = $stmt->fetch();
-    $_SESSION['pat_id'] = $pat_id;
-    $_SESSION['pat_number'] = $pat_number; //Assign session to doc_number id
-    //$uip=$_SERVER['REMOTE_ADDR'];
-    //$ldate=date('d/m/Y h:i:s', time());
-    if (1 === 1) { //if its sucessfull
-        header("location:his_doc_dashboard.php");
+    $pat_pwd = $_POST['pat_pwd']; // Raw password from form
+
+    // Prepare SQL statement to fetch stored hashed password
+    $stmt = $mysqli->prepare("SELECT patient_id, patient_password FROM patient WHERE contact_information = ?");
+    $stmt->bind_param('s', $pat_number);
+    $stmt->execute();
+    $stmt->bind_result($pat_id, $hashed_pwd);
+    
+    if ($stmt->fetch()) {
+        // Verify password using password_verify()
+        if (password_verify($pat_pwd, $hashed_pwd)) {
+            $_SESSION['pat_id'] = $pat_id;
+            $_SESSION['pat_number'] = $pat_number;
+            
+            header("location: his_pat_dashboard.php");
+            exit();
+        } else {
+            $err = "Access Denied. Incorrect credentials.";
+        }
     } else {
-        #echo "<script>alert('Access Denied Please Check Your Credentials');</script>";
-        $err = "Access Denied Please Check Your Credentials";
+        $err = "Access Denied. User not found.";
     }
+
+    $stmt->close();
 }
 ?>
+
 <!--End Login-->
 <!DOCTYPE html>
 <html lang="en">
