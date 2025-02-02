@@ -63,16 +63,17 @@ if (isset($_POST['update_patient'])) {
     
 
     // Process medications
-    $medications2 = [];
-    foreach ($_POST['medications'] ?? [] as $med) {
-        if (!empty($med['name']) || !empty($med['dose'])) {
-            $medications[] = [
-                'name' => $med['name'],
-                'dose' => $med['dose']
-            ];
+   // Process medications
+        $medications2 = []; // Initialize a fresh array for the new data
+        foreach ($_POST['medications'] ?? [] as $med) {
+            if (!empty($med['name']) || !empty($med['dose'])) {
+                $medications2[] = [
+                    'name' => $med['name'],
+                    'dose' => $med['dose']
+                ];
+            }
         }
-    }
-    $medications_json2 = json_encode($medications);
+        $medications_json2 = json_encode($medications2);
 
     // Handle investigation file update
     if (isset($_POST['delete_investigation'])) {
@@ -225,7 +226,7 @@ if (isset($_POST['update_patient'])) {
                                                 <div id="past_illnesses_container">
                                                     <?php  foreach ($past_illnesses as $illness): ?>
                                                     <div class="input-group mb-2">
-                                                        <input type="text" name="past_illnesses" class="form-control" value="<?= htmlspecialchars($illness) ?>">
+                                                        <input type="text" name="past_illnesses[]" class="form-control" value="<?= htmlspecialchars($illness) ?>">
                                                         <button type="button" class="btn btn-danger" onclick="removeField(this)">Delete</button>
                                                     </div>
                                                     <?php endforeach; ?>
