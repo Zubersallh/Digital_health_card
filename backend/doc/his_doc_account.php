@@ -1,162 +1,187 @@
-
 <?php
-  session_start();
-  include('assets/inc/config.php');
-  include('assets/inc/checklogin.php');
-  check_login();
-  $doc_id = $_SESSION['doc_id'];
-  $doc_number = $_SESSION['doc_number'];
+session_start();
+include('assets/inc/config.php');
+include('assets/inc/checklogin.php');
+check_login();
+
+// We'll use doc_id from the session, referencing the 'id' column in the 'doctor' table
+$doc_id = $_SESSION['doc_id'];
+
+// --------------------------------------------
+// Handle the form submission for profile update
+// --------------------------------------------
+if (isset($_POST['update_profile'])) {
+    // Collect and sanitize form inputs
+    $first_name = htmlspecialchars($_POST['first_name']);
+    $last_name  = htmlspecialchars($_POST['last_name']);
+    $email      = htmlspecialchars($_POST['email']);
+
+    // Update the database (no profile picture involved)
+    $update = "UPDATE doctor 
+               SET first_name = ?, 
+                   last_name  = ?, 
+                   email      = ?
+               WHERE id = ?";
+    $stmt = $mysqli->prepare($update);
+    $stmt->bind_param('sssi', $first_name, $last_name, $email, $doc_id);
+
+    if ($stmt->execute()) {
+        $success = "Profile updated successfully!";
+    } else {
+        $err = "Error updating profile: " . $stmt->error;
+    }
+}
+
+// --------------------------------------------
+// Fetch the latest doctor info for display
+// --------------------------------------------
+$query = "SELECT first_name, last_name, email 
+          FROM doctor 
+          WHERE id = ?";
+$stmt  = $mysqli->prepare($query);
+$stmt->bind_param('i', $doc_id);
+$stmt->execute();
+$res   = $stmt->get_result();
+$doc   = $res->fetch_object(); // We expect exactly one row
 ?>
-
 <!DOCTYPE html>
-    <html lang="en">
+<html lang="en">
+<?php include('assets/inc/head.php'); ?>
 
-    <?php include('assets/inc/head.php');?>
+<body>
+    <!-- Begin page -->
+    <div id="wrapper">
+        <!-- Topbar Start -->
+        <?php include("assets/inc/nav.php"); ?>
+        <!-- end Topbar -->
 
-    <body>
+        <!-- ========== Left Sidebar Start ========== -->
+        <?php include("assets/inc/sidebar.php"); ?>
+        <!-- Left Sidebar End -->
 
-        <!-- Begin page -->
-        <div id="wrapper">
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
 
-            <!-- Topbar Start -->
-             <?php include("assets/inc/nav.php");?>
-            <!-- end Topbar -->
+        <div class="content-page">
+            <div class="content">
+                <!-- Start Content-->
+                <div class="container-fluid">
 
-            <!-- ========== Left Sidebar Start ========== -->
-                <?php include("assets/inc/sidebar.php");?>
-            <!-- Left Sidebar End -->
-
-            <!-- ============================================================== -->
-            <!-- Start Page Content here -->
-            <!-- ============================================================== -->
-
-            <!--Get Details Of A Single User And Display Them Here-->
-            <?php
-                $doc_number=$_SESSION['doc_number'];
-                $ret="SELECT  * FROM his_docs WHERE doc_number=?";
-                $stmt= $mysqli->prepare($ret) ;
-                $stmt->bind_param('i',$doc_number);
-                $stmt->execute() ;//ok
-                $res=$stmt->get_result();
-                //$cnt=1;
-                while($row=$res->fetch_object())
-            {
-            ?>
-            <div class="content-page">
-                <div class="content">
-
-                    <!-- Start Content-->
-                    <div class="container-fluid">
-
-                        <!-- start page title -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box">
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Profile</a></li>
-                                            <li class="breadcrumb-item active">View My Profile</li>
-                                        </ol>
-                                    </div>
-                                    <h4 class="page-title"><?php echo $row->doc_fname;?> <?php echo $row->doc_lname;?>'s Profile</h4>
+                    <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#">Profile</a></li>
+                                        <li class="breadcrumb-item active">View / Edit My Profile</li>
+                                    </ol>
                                 </div>
+                                <h4 class="page-title">
+                                    <?php
+                                    if ($doc) {
+                                        echo htmlspecialchars($doc->first_name) . ' ' . htmlspecialchars($doc->last_name);
+                                    } else {
+                                        echo "Doctor Not Found";
+                                    }
+                                    ?>'s Profile
+                                </h4>
                             </div>
                         </div>
-                        <!-- end page title -->
+                    </div>
+                    <!-- end page title -->
 
-                        <div class="row">
-                            <div class="col-lg-6 col-xl-6">
-                                <div class="card-box text-center">
-                                    <img src="../doc/assets/images/users/<?php echo $row->doc_dpic;?>" class="rounded-circle avatar-lg img-thumbnail"
-                                        alt="profile-image">
-
-                                    
-                                    <div class="text-centre mt-3">
-                                        
-                                        <p class="text-muted mb-2 font-13"><strong>Employee Full Name :</strong> <span class="ml-2"><?php echo $row->doc_fname;?> <?php echo $row->doc_lname;?></span></p>
-                                       <p class="text-muted mb-2 font-13"><strong>Employee Department :</strong> <span class="ml-2"><?php echo $row->doc_dept;?></span></p>
-                                        <p class="text-muted mb-2 font-13"><strong>Employee Number :</strong> <span class="ml-2"><?php echo $row->doc_number;?></span></p>
-                                        <p class="text-muted mb-2 font-13"><strong>Employee Email :</strong> <span class="ml-2"><?php echo $row->doc_email;?></span></p>
-
-
-                                    </div>
-
-                                </div> <!-- end card-box -->
-
-                            </div> <!-- end col-->
-                            <!--Vitals-->
-                            <div class="col-lg-6 col-xl-6">
-                                <div class="table-responsive">
-                                    <table class="table table-borderless mb-0">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th>Body Temperature</th>
-                                                <th>Heart Rate/Pulse</th>
-                                                <th>Respiratory Rate</th>
-                                                <th>Blood Pressure</th>
-                                                <th>Date Recorded</th>
-                                            </tr>
-                                        </thead>
-                                        <?php
-                                            $vit_pat_number =$_SESSION['doc_number'];
-                                            $ret="SELECT  * FROM his_vitals WHERE vit_pat_number =?";
-                                            $stmt= $mysqli->prepare($ret) ;
-                                            $stmt->bind_param('i',$vit_pat_number );
-                                            $stmt->execute() ;//ok
-                                            $res=$stmt->get_result();
-                                            //$cnt=1;
-                                            
-                                            while($row=$res->fetch_object())
-                                                {
-                                            $mysqlDateTime = $row->vit_daterec; //trim timestamp to date
-
-                                        ?>
-                                            <tbody>
-                                                <tr>
-                                                    <td><?php echo $row->vit_bodytemp;?>°C</td>
-                                                    <td><?php echo $row->vit_heartpulse;?>BPM</td>
-                                                    <td><?php echo $row->vit_resprate;?>bpm</td>
-                                                    <td><?php echo $row->vit_bloodpress;?>mmHg</td>
-                                                    <td><?php echo date("Y-m-d", strtotime($mysqlDateTime));?></td>
-                                                </tr>
-                                            </tbody>
-                                        <?php }?>
-                                    </table>
-                                    </div>
-                                </div> <!-- end col-->
+                    <!-- Display success / error messages -->
+                    <?php if (isset($success)): ?>
+                        <div class="alert alert-success" role="alert">
+                            <?php echo $success; ?>
                         </div>
-                        <!-- end row-->
+                    <?php elseif (isset($err)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?php echo $err; ?>
+                        </div>
+                    <?php endif; ?>
 
-                    </div> <!-- container -->
+                    <?php if ($doc): ?>
+                        <div class="row">
+                            <!-- Left column: Display current profile -->
+                            <div class="col-lg-4 col-xl-4">
+                                <div class="card-box text-center">
+                                    <!-- Show current name and email -->
+                                    <h5 class="mb-0">
+                                        <?php echo htmlspecialchars($doc->first_name) . ' ' . htmlspecialchars($doc->last_name); ?>
+                                    </h5>
+                                    <p class="text-muted">
+                                        <?php echo htmlspecialchars($doc->email); ?>
+                                    </p>
+                                </div> <!-- end card-box -->
+                            </div> <!-- end col -->
 
-                </div> <!-- content -->
+                            <!-- Right column: Edit form -->
+                            <div class="col-lg-8 col-xl-8">
+                                <div class="card-box">
+                                    <h4 class="header-title mb-3">Edit Profile</h4>
+                                    <form method="post">
+                                        <div class="form-group mb-3">
+                                            <label for="first_name">First Name</label>
+                                            <input type="text" name="first_name"
+                                                class="form-control"
+                                                value="<?php echo htmlspecialchars($doc->first_name); ?>"
+                                                required>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="last_name">Last Name</label>
+                                            <input type="text" name="last_name"
+                                                class="form-control"
+                                                value="<?php echo htmlspecialchars($doc->last_name); ?>"
+                                                required>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="email">Email</label>
+                                            <input type="email" name="email"
+                                                class="form-control"
+                                                value="<?php echo htmlspecialchars($doc->email); ?>"
+                                                required>
+                                        </div>
+                                        <!-- No file upload here -->
+                                        <button type="submit" name="update_profile"
+                                            class="btn btn-primary">
+                                            Update Profile
+                                        </button>
+                                    </form>
+                                </div> <!-- end card-box -->
+                            </div> <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                    <?php else: ?>
+                        <div class="alert alert-danger">
+                            Unable to find doctor record. Please check your database.
+                        </div>
+                    <?php endif; ?>
 
-                <!-- Footer Start -->
-                <?php include('assets/inc/footer.php');?>
-                <!-- end Footer -->
+                </div> <!-- container -->
+            </div> <!-- content -->
 
-            </div>
-            <?php }?>
-
-            <!-- ============================================================== -->
-            <!-- End Page content -->
-            <!-- ============================================================== -->
-
-
+            <!-- Footer Start -->
+            <?php include('assets/inc/footer.php'); ?>
+            <!-- end Footer -->
         </div>
-        <!-- END wrapper -->
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
 
-        <!-- Right bar overlay-->
-        <div class="rightbar-overlay"></div>
+    </div>
+    <!-- END wrapper -->
 
-        <!-- Vendor js -->
-        <script src="assets/js/vendor.min.js"></script>
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
 
-        <!-- App js -->
-        <script src="assets/js/app.min.js"></script>
-
-    </body>
-
+    <!-- Vendor js -->
+    <script src="assets/js/vendor.min.js"></script>
+    <!-- App js -->
+    <script src="assets/js/app.min.js"></script>
+</body>
 
 </html>
