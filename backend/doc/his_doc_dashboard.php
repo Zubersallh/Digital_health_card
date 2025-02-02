@@ -41,7 +41,7 @@
                             <div class="col-12">
                                 <div class="page-title-box">
                                     
-                                    <h4 class="page-title">Hospital Management Information System Dashboard</h4>
+                                    <h4 class="page-title">Digital Health Card</h4>
                                 </div>
                             </div>
                         </div>     
@@ -49,7 +49,7 @@
                         
 
                         <div class="row">
-                            <!--Start OutPatients-->
+                            <!--Start Patients-->
                             <div class="col-md-6 col-xl-4">
                                 <div class="widget-rounded-circle card-box">
                                     <div class="row">
@@ -62,7 +62,7 @@
                                             <div class="text-right">
                                                 <?php
                                                     //code for summing up number of out patients 
-                                                    $result ="SELECT count(*) FROM his_patients  ";
+                                                    $result ="SELECT count(*) FROM patient";
                                                     $stmt = $mysqli->prepare($result);
                                                     $stmt->execute();
                                                     $stmt->bind_result($patient);
@@ -76,121 +76,35 @@
                                     </div> <!-- end row-->
                                 </div> <!-- end widget-rounded-circle-->
                             </div> <!-- end col-->
-                            <!--End Out Patients-->
+                            <!--End Patients-->
+<!--Start Vendors-->
+                                                
+                            <div class="col-md-6 col-xl-6">
+                                                            <a href="his_doc_account.php">
+                                                                <div class="widget-rounded-circle card-box">
+                                                                    <div class="row">
+                                                                        <div class="col-6">
+                                                                            <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
+                                                                                <i class="fas fa-user-tag font-22 avatar-title text-danger"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-6">
+                                                                            <div class="text-right">
+                                                                                <h3 class="text-dark mt-1"></span></h3>
+                                                                                <p class="text-muted mb-1 text-truncate">My Profile</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div> <!-- end row-->
+                                                                </div>
+                                                            </a> <!-- end widget-rounded-circle-->
+                                                        </div> 
+                                                    <!-- end col--> 
+                                                        <!--End Vendors-->  
 
-
-                            <!--Start InPatients-->
-                            <div class="col-md-6 col-xl-4">
-                                <div class="widget-rounded-circle card-box">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
-                                                <i class="mdi mdi-flask font-22 avatar-title text-danger"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-right">
-                                                <?php
-                                                    /* 
-                                                     * code for summing up number of assets,
-                                                     */ 
-                                                    $result ="SELECT count(*) FROM his_equipments ";
-                                                    $stmt = $mysqli->prepare($result);
-                                                    $stmt->execute();
-                                                    $stmt->bind_result($assets);
-                                                    $stmt->fetch();
-                                                    $stmt->close();
-                                                ?>
-                                                <h3 class="text-dark mt-1"><span data-plugin="counterup"><?php echo $assets;?></span></h3>
-                                                <p class="text-muted mb-1 text-truncate">Corporation Assets</p>
-                                            </div>
-                                        </div>
-                                    </div> <!-- end row-->
-                                </div> <!-- end widget-rounded-circle-->
-                            </div>
-                            <!--End InPatients-->
-
-                            <!--Start Pharmaceuticals-->
-                            <div class="col-md-6 col-xl-4">
-                                <div class="widget-rounded-circle card-box">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
-                                                <i class="mdi mdi-pill font-22 avatar-title text-danger"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-right">
-                                                <?php
-                                                    /* 
-                                                     * code for summing up number of pharmaceuticals,
-                                                     */ 
-                                                    $result ="SELECT count(*) FROM his_pharmaceuticals ";
-                                                    $stmt = $mysqli->prepare($result);
-                                                    $stmt->execute();
-                                                    $stmt->bind_result($phar);
-                                                    $stmt->fetch();
-                                                    $stmt->close();
-                                                ?>
-                                                <h3 class="text-dark mt-1"><span data-plugin="counterup"><?php echo $phar;?></span></h3>
-                                                <p class="text-muted mb-1 text-truncate">Pharmaceuticals</p>
-                                            </div>
-                                        </div>
-                                    </div> <!-- end row-->
-                                </div> <!-- end widget-rounded-circle-->
-                            </div> <!-- end col-->
-                            <!--End Pharmaceuticals-->
+                           
                         
                         </div>
 
-                        <div class="row">
-
-                        <!--Start Vendors-->
-                       
-                            <div class="col-md-6 col-xl-6">
-                                <a href="his_doc_account.php">
-                                    <div class="widget-rounded-circle card-box">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
-                                                    <i class="fas fa-user-tag font-22 avatar-title text-danger"></i>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="text-right">
-                                                    <h3 class="text-dark mt-1"></span></h3>
-                                                    <p class="text-muted mb-1 text-truncate">My Profile</p>
-                                                </div>
-                                            </div>
-                                        </div> <!-- end row-->
-                                    </div>
-                                </a> <!-- end widget-rounded-circle-->
-                            </div> 
-                           <!-- end col--> 
-                            <!--End Vendors-->  
-
-                            <!--Start Corporation Assets-->
-                            <div class="col-md-6 col-xl-6">
-                                <a href="his_doc_view_payrolls.php">
-                                    <div class="widget-rounded-circle card-box">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="avatar-lg rounded-circle bg-soft-danger border-danger border">
-                                                    <i class="mdi mdi-flask font-22 avatar-title text-danger"></i>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="text-right">
-                                                    <h3 class="text-dark mt-1"></span></h3>
-                                                    <p class="text-muted mb-1 text-truncate">My Payroll</p>
-                                                </div>
-                                            </div>
-                                        </div> <!-- end row-->
-                                    </div>
-                                </a>     <!-- end widget-rounded-circle-->
-                            </div> <!-- end col-->
-                            <!--End Corporation Assets-->
-                        </div>
                         
 
                         
@@ -208,14 +122,14 @@
                                                     <th>Name</th>
                                                     <th>Address</th>
                                                     <th>Mobile Phone</th>
-                                                    <th>Category</th>
-                                                    <th>Ailment</th>
-                                                    <th>Age</th>
+                                                    <th>Emergency contact </th>
+                                                    <th>Blood type</th>
+                                                    <th>Date Of Birth</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <?php
-                                                $ret="SELECT * FROM his_patients ORDER BY RAND() LIMIT 100 "; 
+                                                $ret="SELECT * FROM patient ORDER BY RAND() LIMIT 100 "; 
                                                 //sql code to get to ten docs  randomly
                                                 $stmt= $mysqli->prepare($ret) ;
                                                 $stmt->execute() ;//ok
@@ -228,25 +142,26 @@
                                                 <tr>
                                                     
                                                     <td>
-                                                        <?php echo $row->pat_fname;?> <?php echo $row->pat_lname;?>
+                                                        <?php echo $row->first_name;?> <?php echo $row->last_name;?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $row->pat_addr;?>
+                                                        <?php echo $row->address;?>
                                                     </td>    
                                                     <td>
-                                                        <?php echo $row->pat_phone;?>
+                                                        <?php echo $row->contact_information;?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $row->pat_type;?>
+                                                        <?php echo $row->emergency_contact_detail;?>
                                                     </td>
                                                     <td>
-                                                        <?php echo $row->pat_ailment;?>
+                                                        <?php echo $row->blood_type;?>
+                                                    </td>
+                                                   
+                                                    <td>
+                                                        <?php echo $row->date_of_birth;?> 
                                                     </td>
                                                     <td>
-                                                        <?php echo $row->pat_age;?> Years
-                                                    </td>
-                                                    <td>
-                                                        <a href="his_doc_view_single_patient.php?pat_id=<?php echo $row->pat_id;?>&&pat_number=<?php echo $row->pat_number;?>&&pat_name=<?php echo $row->pat_fname;?>_<?php echo $row->pat_lname;?>" class="btn btn-xs btn-success"><i class="mdi mdi-eye"></i> View</a>
+                                                        <a href="his_doc_view_single_patient.php?patient_id=<?php echo $row->patient_id;?>&&pat_phone=<?php echo $row->contact_information;?>&&pat_name=<?php echo $row->first_name;?>_<?php echo $row->last_name;?>" class="btn btn-xs btn-success"><i class="mdi mdi-eye"></i> View</a>
                                                     </td>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
                                                 </tr>
                                             </tbody>

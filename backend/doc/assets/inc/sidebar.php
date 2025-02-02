@@ -33,12 +33,20 @@
                         <li>
                             <a href="his_doc_manage_patient.php">Manage Patients</a>
                         </li>
+                        
                         <hr>
 
                     </ul>
                 </li>
 
 
+                <li>
+                    <a href="his_doc_logout.php">
+                        <i class="fe-airplay"></i>
+                        <span> Logout</span>
+                    </a>
+
+                </li>
 
             </ul>
 
