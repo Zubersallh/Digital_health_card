@@ -1,99 +1,95 @@
 <?php
-  session_start();
-  include('assets/inc/config.php');
-  include('assets/inc/checklogin.php');
-  check_login();
-  $aid=$_SESSION['doc_id'];//doctor id 
-  if(isset($_GET['delete']))
-  {
-        $id=intval($_GET['delete']);
-        $adn="delete from patient where patient_id=?";
-        $stmt= $mysqli->prepare($adn);
-        $stmt->bind_param('i',$id);
-        $stmt->execute();
-        $stmt->close();	 
-  
-          if($stmt)
-          {
-            $success = "Patients Records Deleted";
-          }
-            else
-            {
-                $err = "Try Again Later";
-            }
+session_start();
+include('assets/inc/config.php');
+include('assets/inc/checklogin.php');
+check_login();
+$aid = $_SESSION['doc_id']; //doctor id 
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    $adn = "delete from patient where patient_id=?";
+    $stmt = $mysqli->prepare($adn);
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $stmt->close();
+
+    if ($stmt) {
+        $success = "Patients Records Deleted";
+    } else {
+        $err = "Try Again Later";
     }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-    
-<?php include('assets/inc/head.php');?>
 
-    <body>
+<?php include('assets/inc/head.php'); ?>
 
-        <!-- Begin page -->
-        <div id="wrapper">
+<body>
 
-            <!-- Topbar Start -->
-                <?php include('assets/inc/nav.php');?>
-            <!-- end Topbar -->
+    <!-- Begin page -->
+    <div id="wrapper">
 
-            <!-- ========== Left Sidebar Start ========== -->
-                <?php include("assets/inc/sidebar.php");?>
-            <!-- Left Sidebar End -->
+        <!-- Topbar Start -->
+        <?php include('assets/inc/nav.php'); ?>
+        <!-- end Topbar -->
 
-            <!-- ============================================================== -->
-            <!-- Start Page Content here -->
-            <!-- ============================================================== -->
+        <!-- ========== Left Sidebar Start ========== -->
+        <?php include("assets/inc/sidebar.php"); ?>
+        <!-- Left Sidebar End -->
 
-            <div class="content-page">
-                <div class="content">
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
 
-                    <!-- Start Content-->
-                    <div class="container-fluid">
-                        
-                        <!-- start page title -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box">
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Patients</a></li>
-                                            <li class="breadcrumb-item active">Manage Patients</li>
-                                        </ol>
-                                    </div>
-                                    <h4 class="page-title">Manage Patient Details</h4>
+        <div class="content-page">
+            <div class="content">
+
+                <!-- Start Content-->
+                <div class="container-fluid">
+
+                    <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <div class="page-title-right">
+                                    <ol class="breadcrumb m-0">
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Patients</a></li>
+                                        <li class="breadcrumb-item active">Manage Patients</li>
+                                    </ol>
                                 </div>
+                                <h4 class="page-title">Manage Patient Details</h4>
                             </div>
-                        </div>     
-                        <!-- end page title --> 
+                        </div>
+                    </div>
+                    <!-- end page title -->
 
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card-box">
-                                    <h4 class="header-title"></h4>
-                                    <div class="mb-2">
-                                        <div class="row">
-                                            <div class="col-12 text-sm-center form-inline" >
-                                                <div class="form-group mr-2" style="display:none">
-                                                    <select id="demo-foo-filter-status" class="custom-select custom-select-sm">
-                                                        <option value="">Show all</option>
-                                                        <option value="Discharged">Discharged</option>
-                                                        <option value="OutPatients">OutPatients</option>
-                                                        <option value="InPatients">InPatients</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <input id="demo-foo-search" type="text" placeholder="Search" class="form-control form-control-sm" autocomplete="on">
-                                                </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card-box">
+                                <h4 class="header-title"></h4>
+                                <div class="mb-2">
+                                    <div class="row">
+                                        <div class="col-12 text-sm-center form-inline">
+                                            <div class="form-group mr-2" style="display:none">
+                                                <select id="demo-foo-filter-status" class="custom-select custom-select-sm">
+                                                    <option value="">Show all</option>
+                                                    <option value="Discharged">Discharged</option>
+                                                    <option value="OutPatients">OutPatients</option>
+                                                    <option value="InPatients">InPatients</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="demo-foo-search" type="text" placeholder="Search" class="form-control form-control-sm" autocomplete="on">
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class="table-responsive">
-                                        <table id="demo-foo-filtering" class="table table-bordered toggle-circle mb-0" data-page-size="7">
-                                            <thead>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table id="demo-foo-filtering" class="table table-bordered toggle-circle mb-0" data-page-size="7">
+                                        <thead>
                                             <tr>
                                                 <th>#</th>
                                                 <th data-toggle="true">Patient</th>
@@ -102,39 +98,39 @@
                                                 <th data-hide="phone">blood type</th>
                                                 <th data-hide="phone">Action</th>
                                             </tr>
-                                            </thead>
-                                            <?php
-                                            /*
+                                        </thead>
+                                        <?php
+                                        /*
                                                 *get details of allpatients
                                                 *
                                             */
-                                                $ret="SELECT * FROM  patient ORDER BY RAND() "; 
-                                                //sql code to get to ten docs  randomly
-                                                $stmt= $mysqli->prepare($ret) ;
-                                                $stmt->execute() ;//ok
-                                                $res=$stmt->get_result();
-                                                $cnt=1;
-                                                while($row=$res->fetch_object())
-                                                {
-                                            ?>
+                                        $ret = "SELECT * FROM  patient ORDER BY RAND() ";
+                                        //sql code to get to ten docs  randomly
+                                        $stmt = $mysqli->prepare($ret);
+                                        $stmt->execute(); //ok
+                                        $res = $stmt->get_result();
+                                        $cnt = 1;
+                                        while ($row = $res->fetch_object()) {
+                                        ?>
 
-                                                <tbody>
+                                            <tbody>
                                                 <tr>
-                                                    <td><?php echo $cnt;?></td>
-                                                    <td><?php echo $row->first_name;?> <?php echo $row->last_name;?></td>
-                                                    <td><?php echo $row->contact_information;?></td>
-                                                    <td><?php echo $row->address;?></td>
-                                                    <td><?php echo $row->blood_type;?></td>
-                                                    
+                                                    <td><?php echo $cnt; ?></td>
+                                                    <td><?php echo $row->first_name; ?> <?php echo $row->last_name; ?></td>
+                                                    <td><?php echo $row->contact_information; ?></td>
+                                                    <td><?php echo $row->address; ?></td>
+                                                    <td><?php echo $row->blood_type; ?></td>
+
                                                     <td>
-                                                        <a href="his_doc_manage_patient.php?delete=<?php echo $row->patient_id;?>" class="badge badge-danger"><i class=" mdi mdi-trash-can-outline "></i> Delete</a>
-                                                        <a href="his_doc_view_single_patient.php?patient_id=<?php echo $row->patient_id;?>&&pat_phone=<?php echo $row->contact_information;?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a>
-                                                        <a href="his_doc_update_single_patient.php?pat_id=<?php echo $row->patient_id;?>" class="badge badge-primary"><i class="mdi mdi-check-box-outline "></i> Update</a>
+                                                        <a href="his_doc_manage_patient.php?delete=<?php echo $row->patient_id; ?>" class="badge badge-danger"><i class=" mdi mdi-trash-can-outline "></i> Delete</a>
+                                                        <a href="his_doc_view_single_patient.php?patient_id=<?php echo $row->patient_id; ?>&&pat_phone=<?php echo $row->contact_information; ?>" class="badge badge-success"><i class="mdi mdi-eye"></i> View</a>
+                                                        <a href="his_doc_update_single_patient.php?pat_id=<?php echo $row->patient_id; ?>" class="badge badge-primary"><i class="mdi mdi-check-box-outline "></i> Update</a>
                                                     </td>
                                                 </tr>
-                                                </tbody>
-                                            <?php  $cnt = $cnt +1 ; }?>
-                                            <tfoot>
+                                            </tbody>
+                                        <?php $cnt = $cnt + 1;
+                                        } ?>
+                                        <tfoot>
                                             <tr class="active">
                                                 <td colspan="8">
                                                     <div class="text-right">
@@ -142,48 +138,48 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div> <!-- end .table-responsive-->
-                                </div> <!-- end card-box -->
-                            </div> <!-- end col -->
-                        </div>
-                        <!-- end row -->
+                                        </tfoot>
+                                    </table>
+                                </div> <!-- end .table-responsive-->
+                            </div> <!-- end card-box -->
+                        </div> <!-- end col -->
+                    </div>
+                    <!-- end row -->
 
-                    </div> <!-- container -->
+                </div> <!-- container -->
 
-                </div> <!-- content -->
+            </div> <!-- content -->
 
-                <!-- Footer Start -->
-                 <?php include('assets/inc/footer.php');?>
-                <!-- end Footer -->
-
-            </div>
-
-            <!-- ============================================================== -->
-            <!-- End Page content -->
-            <!-- ============================================================== -->
-
+            <!-- Footer Start -->
+            <?php include('assets/inc/footer.php'); ?>
+            <!-- end Footer -->
 
         </div>
-        <!-- END wrapper -->
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
 
 
-        <!-- Right bar overlay-->
-        <div class="rightbar-overlay"></div>
+    </div>
+    <!-- END wrapper -->
 
-        <!-- Vendor js -->
-        <script src="assets/js/vendor.min.js"></script>
 
-        <!-- Footable js -->
-        <script src="assets/libs/footable/footable.all.min.js"></script>
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
 
-        <!-- Init js -->
-        <script src="assets/js/pages/foo-tables.init.js"></script>
+    <!-- Vendor js -->
+    <script src="assets/js/vendor.min.js"></script>
 
-        <!-- App js -->
-        <script src="assets/js/app.min.js"></script>
-        
-    </body>
+    <!-- Footable js -->
+    <script src="assets/libs/footable/footable.all.min.js"></script>
+
+    <!-- Init js -->
+    <script src="assets/js/pages/foo-tables.init.js"></script>
+
+    <!-- App js -->
+    <script src="assets/js/app.min.js"></script>
+
+</body>
 
 </html>

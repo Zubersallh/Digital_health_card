@@ -7,7 +7,7 @@ $aid = $_SESSION['doc_id'];
 
 // Sanitize and validate GET parameters
 $patient_id = filter_input(INPUT_GET, 'patient_id', FILTER_VALIDATE_INT);
-$pat_phone  = filter_input(INPUT_GET, 'pat_phone', FILTER_SANITIZE_STRING);
+$pat_phone  = filter_input(INPUT_GET, 'pat_phone', FILTER_SANITIZE_SPECIAL_CHARS);
 
 if (!$patient_id || !$pat_phone) {
     die("Invalid patient ID or phone number.");
@@ -36,7 +36,6 @@ if (!$patient_id || !$pat_phone) {
         <!-- Start Page Content here -->
         <!-- ============================================================== -->
 
-        <!-- Get Details Of A Single User And Display Them Here -->
         <?php
         // Fetch patient details
         $ret = "SELECT * FROM patient WHERE patient_id = ?";
@@ -50,8 +49,9 @@ if (!$patient_id || !$pat_phone) {
         }
 
         $row = $res->fetch_object();
-        // Assign the date recorded from the new column
-        $mysqlDateTime = $row->pat_date_joined;
+
+        // If you have a 'pat_date_joinded' column
+        $mysqlDateTime = $row->pat_date_joinded;
         ?>
 
         <div class="content-page">
@@ -66,58 +66,96 @@ if (!$patient_id || !$pat_phone) {
                             <div class="page-title-box">
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="his_admin_dashboard.php">Dashboard</a></li>
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Patients</a></li>
                                         <li class="breadcrumb-item active">View Patients</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title"><?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?>'s Profile</h4>
+                                <h4 class="page-title">
+                                    <?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?>'s Profile
+                                </h4>
                             </div>
                         </div>
                     </div>
                     <!-- End page title -->
 
                     <div class="row">
+                        <!-- Patient Summary (Left Column) -->
                         <div class="col-lg-4 col-xl-4">
                             <div class="card-box text-center">
-                                <img src="assets/images/users/patient.png" class="rounded-circle avatar-lg img-thumbnail" alt="profile-image">
+                                <img src="assets/images/users/patient.png"
+                                    class="rounded-circle avatar-lg img-thumbnail"
+                                    alt="profile-image">
 
                                 <div class="text-left mt-3">
                                     <p class="text-muted mb-2 font-13">
-                                        <strong>Full Name :</strong> <span class="ml-2"><?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?></span>
+                                        <strong>Full Name :</strong>
+                                        <span class="ml-2">
+                                            <?php
+                                            echo htmlspecialchars($row->first_name . ' ' . $row->last_name);
+                                            ?>
+                                        </span>
                                     </p>
                                     <p class="text-muted mb-2 font-13">
-                                        <strong>Mobile :</strong><span class="ml-2"><?php echo htmlspecialchars($row->contact_information); ?></span>
+                                        <strong>Mobile :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->contact_information); ?>
+                                        </span>
                                     </p>
                                     <p class="text-muted mb-2 font-13">
-                                        <strong>Address :</strong> <span class="ml-2"><?php echo htmlspecialchars($row->address); ?></span>
+                                        <strong>Address :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->address); ?>
+                                        </span>
                                     </p>
                                     <p class="text-muted mb-2 font-13">
-                                        <strong>Date Of Birth :</strong> <span class="ml-2"><?php echo htmlspecialchars($row->date_of_birth); ?></span>
+                                        <strong>Date Of Birth :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->date_of_birth); ?>
+                                        </span>
                                     </p>
                                     <hr>
-                                    <p class="text-muted mb-2 font-13">
-                                        <strong>Date Recorded :</strong> <span class="ml-2"><?php echo date("d/m/Y - h:i", strtotime($mysqlDateTime)); ?></span>
-                                    </p>
+                                    <!-- If you have a date joined column -->
+                                    <?php if (!empty($mysqlDateTime)): ?>
+                                        <p class="text-muted mb-2 font-13">
+                                            <strong>Date Recorded :</strong>
+                                            <span class="ml-2">
+                                                <?php echo date("d/m/Y - h:i", strtotime($mysqlDateTime)); ?>
+                                            </span>
+                                        </p>
+                                    <?php endif; ?>
                                     <hr>
                                 </div>
                             </div> <!-- end card-box -->
                         </div> <!-- end col -->
 
+                        <!-- Patient Details (Right Column) -->
                         <div class="col-lg-8 col-xl-8">
                             <div class="card-box">
                                 <ul class="nav nav-pills navtab-bg nav-justified">
                                     <li class="nav-item">
-                                        <a href="#medical-history" data-toggle="tab" aria-expanded="false" class="nav-link active">Medical History</a>
+                                        <a href="#medical-history" data-toggle="tab"
+                                            aria-expanded="false" class="nav-link active">
+                                            Medical History
+                                        </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#medications" data-toggle="tab" aria-expanded="true" class="nav-link">Medications</a>
+                                        <a href="#medications" data-toggle="tab"
+                                            aria-expanded="true" class="nav-link">
+                                            Medications
+                                        </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#allergies" data-toggle="tab" aria-expanded="false" class="nav-link">Allergies</a>
+                                        <a href="#allergies" data-toggle="tab"
+                                            aria-expanded="false" class="nav-link">
+                                            Allergies
+                                        </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#investigation" data-toggle="tab" aria-expanded="false" class="nav-link">Investigation</a>
+                                        <a href="#investigation" data-toggle="tab"
+                                            aria-expanded="false" class="nav-link">
+                                            Investigation
+                                        </a>
                                     </li>
                                 </ul>
 
@@ -127,29 +165,54 @@ if (!$patient_id || !$pat_phone) {
                                     <div class="tab-pane show active" id="medical-history">
                                         <ul class="list-unstyled timeline-sm">
                                             <?php
-                                            $past_illnesses = json_decode($row->past_illnesses, true);
-                                            $surgeries = json_decode($row->surgeries, true);
+                                            $past_illnesses     = json_decode($row->past_illnesses, true);
+                                            $surgeries          = json_decode($row->surgeries, true);
                                             $chronic_conditions = json_decode($row->chronic_conditions, true);
-                                            $family_medical_history = json_decode($row->family_medical_history, true);
+                                            $family_med_hist    = json_decode($row->family_medical_history, true);
                                             ?>
                                             <li class="timeline-sm-item">
                                                 <h5 class="mt-0 mb-1">Past Illnesses</h5>
-                                                <p class="text-muted mt-2"><?php echo !empty($past_illnesses) ? implode(', ', $past_illnesses) : 'No past illnesses recorded'; ?></p>
+                                                <p class="text-muted mt-2">
+                                                    <?php
+                                                    echo !empty($past_illnesses)
+                                                        ? implode(', ', $past_illnesses)
+                                                        : 'No past illnesses recorded';
+                                                    ?>
+                                                </p>
                                             </li>
                                             <li class="timeline-sm-item">
                                                 <h5 class="mt-0 mb-1">Surgeries</h5>
-                                                <p class="text-muted mt-2"><?php echo !empty($surgeries) ? implode(', ', $surgeries) : 'No surgeries recorded'; ?></p>
+                                                <p class="text-muted mt-2">
+                                                    <?php
+                                                    echo !empty($surgeries)
+                                                        ? implode(', ', $surgeries)
+                                                        : 'No surgeries recorded';
+                                                    ?>
+                                                </p>
                                             </li>
                                             <li class="timeline-sm-item">
                                                 <h5 class="mt-0 mb-1">Chronic Conditions</h5>
-                                                <p class="text-muted mt-2"><?php echo !empty($chronic_conditions) ? implode(', ', $chronic_conditions) : 'No chronic conditions recorded'; ?></p>
+                                                <p class="text-muted mt-2">
+                                                    <?php
+                                                    echo !empty($chronic_conditions)
+                                                        ? implode(', ', $chronic_conditions)
+                                                        : 'No chronic conditions recorded';
+                                                    ?>
+                                                </p>
                                             </li>
                                             <li class="timeline-sm-item">
                                                 <h5 class="mt-0 mb-1">Family Medical History</h5>
-                                                <p class="text-muted mt-2"><?php echo !empty($family_medical_history) ? implode(', ', $family_medical_history) : 'No family medical history recorded'; ?></p>
+                                                <p class="text-muted mt-2">
+                                                    <?php
+                                                    echo !empty($family_med_hist)
+                                                        ? implode(', ', $family_med_hist)
+                                                        : 'No family medical history recorded';
+                                                    ?>
+                                                </p>
                                             </li>
                                         </ul>
-                                    </div> <!-- end medical-history tab -->
+                                    </div>
+                                    <!-- end medical-history tab -->
 
                                     <!-- Medications Tab -->
                                     <div class="tab-pane" id="medications">
@@ -172,8 +235,12 @@ if (!$patient_id || !$pat_phone) {
                                                         echo "<tr><td colspan='2' class='text-danger'>Error decoding medication data</td></tr>";
                                                     } elseif (is_array($medications) && !empty($medications)) {
                                                         foreach ($medications as $medication) {
-                                                            $med_name = isset($medication['name']) ? htmlspecialchars($medication['name']) : "N/A";
-                                                            $med_dose = isset($medication['dose']) ? htmlspecialchars($medication['dose']) : "N/A";
+                                                            $med_name = isset($medication['name'])
+                                                                ? htmlspecialchars($medication['name'])
+                                                                : "N/A";
+                                                            $med_dose = isset($medication['dose'])
+                                                                ? htmlspecialchars($medication['dose'])
+                                                                : "N/A";
 
                                                             echo "<tr>
                                                                     <td>{$med_name}</td>
@@ -187,7 +254,8 @@ if (!$patient_id || !$pat_phone) {
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div> <!-- end medications tab -->
+                                    </div>
+                                    <!-- end medications tab -->
 
                                     <!-- Allergies Tab -->
                                     <div class="tab-pane" id="allergies">
@@ -197,41 +265,73 @@ if (!$patient_id || !$pat_phone) {
                                             if (!empty($allergies)) {
                                                 echo "<li class='timeline-sm-item'>
                                                         <h5 class='mt-0 mb-1'>Allergy</h5>
-                                                        <p class='text-muted mt-2'>" . htmlspecialchars($allergies) . "</p>
+                                                        <p class='text-muted mt-2'>"
+                                                    . htmlspecialchars($allergies) .
+                                                    "</p>
                                                       </li>";
                                             } else {
-                                                echo "<li class='timeline-sm-item'><p class='text-muted'>No allergies recorded</p></li>";
+                                                echo "<li class='timeline-sm-item'>
+                                                      <p class='text-muted'>No allergies recorded</p></li>";
                                             }
                                             ?>
                                         </ul>
-                                    </div> <!-- end allergies tab -->
+                                    </div>
+                                    <!-- end allergies tab -->
 
-                                    <!-- Investigation Tab -->
+                                    <!-- Investigation Tab (Multiple Files) -->
                                     <div class="tab-pane" id="investigation">
                                         <ul class="list-unstyled timeline-sm">
                                             <?php
-                                            // Check if an investigation file name is stored in the database
-                                            if (!empty($row->investigations)) {
-                                                // Build the file path
-                                                $filePath = 'uploads/' . $row->investigations;
+                                            // Decode the JSON array of investigation filenames
+                                            $investigationFiles = !is_null($row->investigations)
+                                                ? json_decode($row->investigations, true)
+                                                : [];
+                                            $investigationFiles = is_array($investigationFiles)
+                                                ? $investigationFiles
+                                                : [];
 
-                                                // Check if the file exists on the server
-                                                if (file_exists($filePath)) {
-                                                    echo "<li class='timeline-sm-item'>
-                                                            <h5 class='mt-0 mb-1'>Investigation Report</h5>
-                                                            <hr>
-                                                            <img src='$filePath' alt='Investigation Image' class='img-fluid' style='max-width: 100%; height: auto;'>
-                                                            <hr>
-                                                          </li>";
-                                                } else {
-                                                    echo "<li class='timeline-sm-item'><p class='text-danger'>Investigation file not found.</p></li>";
+                                            if (!empty($investigationFiles)) {
+                                                echo "<h5 class='mt-0 mb-1'>Investigation Files</h5><hr>";
+                                                foreach ($investigationFiles as $fileName) {
+                                                    $fileName = trim($fileName);
+                                                    $filePath = 'uploads/' . $fileName;
+
+                                                    if (file_exists($filePath)) {
+                                                        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                                                        // Display differently based on file type
+                                                        if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif'])) {
+                                                            echo "<p><strong>File:</strong> {$fileName}</p>";
+                                                            // Wrap the <img> in an <a> so clicking the image opens in a new tab
+                                                            echo "<a href='{$filePath}' target='_blank'>
+                                                                    <img src='{$filePath}' alt='Investigation Image' 
+                                                                         class='img-fluid mb-3'
+                                                                         style='max-width: 100%; height: auto;'>
+                                                                  </a>";
+                                                            echo "<hr>";
+                                                        } elseif ($fileExt === 'pdf') {
+                                                            // PDF link
+                                                            echo "<p><strong>File:</strong> {$fileName}</p>";
+                                                            echo "<p><a href='{$filePath}' target='_blank'>Open PDF</a></p>";
+                                                            echo "<hr>";
+                                                        } else {
+                                                            // Other file type
+                                                            echo "<p><strong>File:</strong> {$fileName} 
+                                                                  <a href='{$filePath}' download>Download</a></p>";
+                                                            echo "<hr>";
+                                                        }
+                                                    } else {
+                                                        echo "<p class='text-danger'>File not found: {$fileName}</p><hr>";
+                                                    }
                                                 }
                                             } else {
-                                                echo "<li class='timeline-sm-item'><p class='text-muted'>No investigation record found.</p></li>";
+                                                echo "<li class='timeline-sm-item'>
+                                                      <p class='text-muted'>No investigation record found.</p>
+                                                      </li>";
                                             }
                                             ?>
                                         </ul>
-                                    </div> <!-- end investigation tab -->
+                                    </div>
+                                    <!-- end investigation tab -->
 
                                 </div> <!-- end tab-content -->
                             </div> <!-- end card-box -->
@@ -251,5 +351,7 @@ if (!$patient_id || !$pat_phone) {
 
     <!-- App js -->
     <script src="assets/js/app.min.js"></script>
+
 </body>
+
 </html>
