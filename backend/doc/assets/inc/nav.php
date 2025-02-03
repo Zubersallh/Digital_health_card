@@ -1,9 +1,9 @@
 <?php
     $doc_id = $_SESSION['doc_id'];
-    $doc_number = $_SESSION['doc_number'];
-    $ret="SELECT * FROM  his_docs WHERE doc_id = ? AND doc_number = ?";
+    $doc_email = $_SESSION['doc_email'];
+    $ret="SELECT * FROM  doctor WHERE id = ? AND email = ?";
     $stmt= $mysqli->prepare($ret) ;
-    $stmt->bind_param('is',$doc_id, $doc_number);
+    $stmt->bind_param('is',$doc_id, $doc_email);
     $stmt->execute() ;//ok
     $res=$stmt->get_result();
     //$cnt=1;
@@ -31,9 +31,9 @@
             
             <li class="dropdown notification-list">
                 <a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                    <img src="assets/images/users/<?php echo $row->doc_dpic;?>" alt="dpic" class="rounded-circle">
+                    <!-- <img src="assets/images/users/</?php echo $row->doc_dpic;?>" alt="dpic" class="rounded-circle"> -->
                     <span class="pro-user-name ml-1">
-                        <?php echo $row->doc_fname;?> <?php echo $row->doc_lname;?> <i class="mdi mdi-chevron-down"></i> 
+                        <?php echo $row->first_name;?> <?php echo $row->last_name;?> <i class="mdi mdi-chevron-down"></i> 
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
@@ -48,7 +48,7 @@
                         <span>My Account</span>
                     </a> -->
 
-                    <a href="his_doc_update-account.php" class="dropdown-item notify-item">
+                    <a href="his_doc_account.php" class="dropdown-item notify-item">
                         <i class="fas fa-user-tag"></i>
                         <span>Update Account</span>
                     </a>
@@ -71,7 +71,7 @@
 
         <!-- LOGO -->
         <div class="logo-box">
-            <a href="his_admin_dashboard.php" class="logo text-center">
+            <a href="his_doc_dashboard.php" class="logo text-center">
                 <span class="logo-lg">
                     <img src="assets/images/logo-light.png" alt="" height="18">
                     <!-- <span class="logo-lg-text-light">UBold</span> -->
@@ -107,9 +107,9 @@
 
 
                     <!-- item-->
-                    <a href="his_doc_lab_report.php" class="dropdown-item">
+                    <a href="his_doc_manage_patient.php" class="dropdown-item">
                         <i class="fe-hard-drive mr-1"></i>
-                        <span>Laboratory Report</span>
+                        <span>Manage Patient</span>
                     </a>
 
                     
