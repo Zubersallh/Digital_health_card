@@ -82,19 +82,25 @@ if (isset($_POST['add_patient'])) {
 
     // JSON-encode the array of file names to store in the database
     $investigationFilesJson = json_encode($investigationFileNames);
-
+    require_once'../../phpqrcode-2010100721_1.1.4/phpqrcode/qrlib.php';
+           
+    $qr_code_generated_url = "http://192.168.1.5/Hospital_Managment_System/backend/patient/his_pat_dashboard.php?pat_phone=".$pat_phone;
+    $path = './assets/qr_code_images/';
+    $qrcode = $path.time().".png";
+    echo  "<img sr='".$qrcode."'>";
+    QRcode :: png($qr_code_generated_url,$qrcode,'H',4,4);
     // -----------------------------
     // Prepare the INSERT statement
     // -----------------------------
     $query = "INSERT INTO patient 
         (first_name, last_name, date_of_birth, address, contact_information, emergency_contact_detail, 
          blood_type, past_illnesses, surgeries, chronic_conditions, family_medical_history, 
-         medication, allergies, investigations, patient_password) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+         medication, allergies, investigations, patient_password,qr_code_image_path) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
     if ($stmt = $mysqli->prepare($query)) {
         $stmt->bind_param(
-            'sssssssssssssss',
+            'ssssssssssssssss',
             $pat_fname,
             $pat_lname,
             $pat_dob,
@@ -109,11 +115,15 @@ if (isset($_POST['add_patient'])) {
             $medications_json,
             $allergies,
             $investigationFilesJson,
-            $password
+            $password,
+            $qrcode
         );
 
         if ($stmt->execute()) {
             $success = "Patient Details Added Successfully";
+            //generating qrCode for the patient 
+           
+            // $sql = "INSERT INTO patient(qr_code_image_path)values($qrcode) where contact_information = $pat_phone;";
             // Optionally, redirect or show a success message here
             // echo "<script>alert('$success'); window.location='some_page.php';</script>";
         } else {

@@ -1,6 +1,12 @@
 <?php
+    if (isset($_SESSION['doc_id']) && isset($_SESSION['doc_email'])){
     $doc_id = $_SESSION['doc_id'];
     $doc_email = $_SESSION['doc_email'];
+    }
+     else if (isset($_SESSION['pat_id']) && isset($_SESSION['pat_phone'])){
+        $doc_id = $_SESSION['doc_id'];
+        $doc_email = $_SESSION['doc_email'];
+        }
     $ret="SELECT * FROM  doctor WHERE id = ? AND email = ?";
     $stmt= $mysqli->prepare($ret) ;
     $stmt->bind_param('is',$doc_id, $doc_email);
