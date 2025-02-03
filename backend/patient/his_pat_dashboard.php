@@ -338,32 +338,59 @@ check_login();
                                         </ul>
                                     </div> <!-- end allergies tab -->
 
-                                    <!-- Investigation Tab -->
+                                    <!-- Investigation Tab (Multiple Files) -->
                                     <div class="tab-pane" id="investigation">
                                         <ul class="list-unstyled timeline-sm">
                                             <?php
-                                            // Check if an investigation file name is stored in the database
-                                            if (!empty($row->investigations)) {
-                                                // Build the file path
-                                                $filePath = '../doc/uploads/' . $row->investigations;
+                                            // Decode the JSON array of investigation filenames
+                                            $investigationFiles = !is_null($row->investigations)
+                                                ? json_decode($row->investigations, true)
+                                                : [];
+                                            $investigationFiles = is_array($investigationFiles)
+                                                ? $investigationFiles
+                                                : [];
 
-                                                // Check if the file exists on the server
-                                                if (file_exists($filePath)) {
-                                                    echo "<li class='timeline-sm-item'>
-                                                            <h5 class='mt-0 mb-1'>Investigation Report</h5>
-                                                            <hr>
-                                                            <img src='$filePath' alt='Investigation Image' class='img-fluid' style='max-width: 100%; height: auto;'>
-                                                            <hr>
-                                                          </li>";
-                                                } else {
-                                                    echo "<li class='timeline-sm-item'><p class='text-danger'>Investigation file not found.</p></li>";
+                                            if (!empty($investigationFiles)) {
+                                                echo "<h5 class='mt-0 mb-1'>Investigation Files</h5><hr>";
+                                                foreach ($investigationFiles as $fileName) {
+                                                    $fileName = trim($fileName);
+                                                    $filePath = '../doc/uploads/' . $fileName;
+
+                                                    if (file_exists($filePath)) {
+                                                        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                                                        // Display differently based on file type
+                                                        if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif'])) {
+                                                            echo "<p><strong>File:</strong> {$fileName}</p>";
+                                                            // Wrap the <img> in an <a> so clicking the image opens in a new tab
+                                                            echo "<a href='{$filePath}' target='_blank'>
+                                                                    <img src='{$filePath}' alt='Investigation Image' 
+                                                                         class='img-fluid mb-3'
+                                                                         style='max-width: 100%; height: auto;'>
+                                                                  </a>";
+                                                            echo "<hr>";
+                                                        } elseif ($fileExt === 'pdf') {
+                                                            // PDF link
+                                                            echo "<p><strong>File:</strong> {$fileName}</p>";
+                                                            echo "<p><a href='{$filePath}' target='_blank'>Open PDF</a></p>";
+                                                            echo "<hr>";
+                                                        } else {
+                                                            // Other file type
+                                                            echo "<p><strong>File:</strong> {$fileName} 
+                                                                  <a href='{$filePath}' download>Download</a></p>";
+                                                            echo "<hr>";
+                                                        }
+                                                    } else {
+                                                        echo "<p class='text-danger'>File not found: {$fileName}</p><hr>";
+                                                    }
                                                 }
                                             } else {
-                                                echo "<li class='timeline-sm-item'><p class='text-muted'>No investigation record found.</p></li>";
+                                                echo "<li class='timeline-sm-item'>
+                                                      <p class='text-muted'>No investigation record found.</p>
+                                                      </li>";
                                             }
                                             ?>
                                         </ul>
-                                    </div> <!-- end investigation tab -->
+                                    </div>
 
                                 </div> <!-- end tab-content -->
                             </div> <!-- end card-box -->
