@@ -3,15 +3,49 @@ session_start();
 include('../doc/assets/inc/config.php');
 include('../doc/assets/inc/checklogin.php');
 check_login();
-$patient_id = $_SESSION['pat_id'];
-$pat_phone = $_SESSION['pat_number'];
-// Sanitize and validate GET parameters
+//if the user is log in with login form his credianality
+        if (isset($_SESSION['pat_id']) && isset($_SESSION['pat_number'])){
+            $patient_id = $_SESSION['pat_id'];
+            $pat_phone = $_SESSION['pat_number'];
+        }
+        //iif the user log in with qrcode
+        else {
 
 
-if (!$patient_id || !$pat_phone) {
-    die("Invalid patient ID or phone number.");
-}
+                $pat_phone = filter_input(INPUT_GET, 'pat_phone', FILTER_SANITIZE_SPECIAL_CHARS);
+
+            // Check if the input is valid
+            if ($pat_phone) {
+            
+                $sql = "SELECT patient_id FROM patient WHERE contact_information = ?";
+                $stmt = $mysqli->prepare($sql);
+
+                if ($stmt) {    
+
+                    $stmt->bind_param("s", $pat_phone);
+
+                    $stmt->execute();
+                    $stmt->bind_result($patient_id);
+
+                    // Fetch the result
+                    if ($stmt->fetch()) {
+                    $patient_id =$patient_id;
+                    } else {
+                        echo "No patient found with the provided phone number.";
+                    }
+
+                
+                    $stmt->close();
+                } else {
+                    echo "Failed to prepare the SQL statement.";
+                }
+            } else {
+                echo "Invalid phone number provided.";
+            }
+        }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -75,7 +109,7 @@ if (!$patient_id || !$pat_phone) {
     <div id="wrapper">
 
         <!-- Topbar Start -->
-        <?php include("../doc/assets/inc/nav.php"); ?>
+        <!-- </?php include("../doc/assets/inc/nav.php"); ?> -->
         <!-- end Topbar -->
 
         <!-- ========== Left Sidebar Start ========== -->
