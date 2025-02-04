@@ -2,18 +2,21 @@
 session_start();
 include('assets/inc/config.php'); // Ensure $mysqli is created in this file
 
+$errorMessage = "";
+// Removed the GET-based success message block
+
 if (isset($_POST['add_patient'])) {
     // Collect patient data from the form
-    $pat_fname           = $_POST['pat_fname'];
-    $pat_lname           = $_POST['pat_lname'];
-    $pat_dob             = date('Y-m-d', strtotime($_POST['pat_dob']));
-    $pat_addr            = $_POST['pat_addr'];
-    $pat_phone           = $_POST['pat_phone'];
-    $pat_emer_con        = $_POST['pat_emer_con'];
-    $blood_type          = $_POST['blood_type'];
-    $past_illnesses      = isset($_POST['past_illnesses']) ? json_encode($_POST['past_illnesses']) : json_encode([]);
-    $surgeries           = isset($_POST['surgeries']) ? json_encode($_POST['surgeries']) : json_encode([]);
-    $chronic_conditions  = isset($_POST['chronic_conditions']) ? json_encode($_POST['chronic_conditions']) : json_encode([]);
+    $pat_fname              = $_POST['pat_fname'];
+    $pat_lname              = $_POST['pat_lname'];
+    $pat_dob                = date('Y-m-d', strtotime($_POST['pat_dob']));
+    $pat_addr               = $_POST['pat_addr'];
+    $pat_phone              = $_POST['pat_phone'];
+    $pat_emer_con           = $_POST['pat_emer_con'];
+    $blood_type             = $_POST['blood_type'];
+    $past_illnesses         = isset($_POST['past_illnesses']) ? json_encode($_POST['past_illnesses']) : json_encode([]);
+    $surgeries              = isset($_POST['surgeries']) ? json_encode($_POST['surgeries']) : json_encode([]);
+    $chronic_conditions     = isset($_POST['chronic_conditions']) ? json_encode($_POST['chronic_conditions']) : json_encode([]);
     $family_medical_history = isset($_POST['family_medical_history']) ? json_encode($_POST['family_medical_history']) : json_encode([]);
 
     // Process medications array
@@ -34,105 +37,107 @@ if (isset($_POST['add_patient'])) {
     $password  = password_hash($_POST['patient_password'], PASSWORD_DEFAULT);
 
     // ------------------------------
-    // Multiple file upload handling
+    // 1) Check if phone number exists
     // ------------------------------
-    // Initialize an array to hold the names of uploaded investigation files
-    $investigationFileNames = [];
+    $check_phone_sql = "SELECT contact_information FROM patient WHERE contact_information = ?";
+    if ($check_stmt = $mysqli->prepare($check_phone_sql)) {
+        $check_stmt->bind_param('s', $pat_phone);
+        $check_stmt->execute();
+        $check_stmt->store_result();
 
-    if (isset($_FILES['investigations'])) {
-        // Allowed file extensions
-        $allowedExts = array('jpg', 'jpeg', 'png', 'gif', 'pdf');
+        if ($check_stmt->num_rows > 0) {
+            $errorMessage = "<div class='alert alert-danger'>Error: This phone number is already registered in the database. Please use a different contact number.</div>";
+        }
+        $check_stmt->close();
+    } else {
+        $errorMessage = "<div class='alert alert-danger'>Error: Could not prepare phone-check statement: " . htmlspecialchars($mysqli->error) . "</div>";
+    }
 
-        // Loop through each file input
-        for ($i = 0; $i < count($_FILES['investigations']['name']); $i++) {
-            $filename = $_FILES['investigations']['name'][$i];
-            $fileTmp  = $_FILES['investigations']['tmp_name'][$i];
-            $error    = $_FILES['investigations']['error'][$i];
+    // Only proceed if there is no error message from the phone check
+    if (empty($errorMessage)) {
 
-            // Only process if there is no upload error and a filename is present
-            if ($error === UPLOAD_ERR_OK && !empty($filename)) {
-                $fileExt = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        // ------------------------------
+        // Multiple file upload handling
+        // ------------------------------
+        $investigationFileNames = [];
+        if (isset($_FILES['investigations'])) {
+            $allowedExts = array('jpg', 'jpeg', 'png', 'gif', 'pdf');
 
-                // Validate file extension
-                if (in_array($fileExt, $allowedExts)) {
-                    // Generate a unique file name and define the upload directory
-                    $newFileName = uniqid('investigation_', true) . '.' . $fileExt;
-                    $uploadDir   = 'uploads/';
+            for ($i = 0; $i < count($_FILES['investigations']['name']); $i++) {
+                $filename = $_FILES['investigations']['name'][$i];
+                $fileTmp  = $_FILES['investigations']['tmp_name'][$i];
+                $error    = $_FILES['investigations']['error'][$i];
 
-                    // Create upload directory if it doesn't exist
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0777, true);
-                    }
-
-                    $destination = $uploadDir . $newFileName;
-
-                    // Move the uploaded file to the destination folder
-                    if (move_uploaded_file($fileTmp, $destination)) {
-                        // Store the new file name in the array
-                        $investigationFileNames[] = $newFileName;
+                if ($error === UPLOAD_ERR_OK && !empty($filename)) {
+                    $fileExt = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                    if (in_array($fileExt, $allowedExts)) {
+                        $newFileName = uniqid('investigation_', true) . '.' . $fileExt;
+                        $uploadDir   = 'uploads/';
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        $destination = $uploadDir . $newFileName;
+                        if (move_uploaded_file($fileTmp, $destination)) {
+                            $investigationFileNames[] = $newFileName;
+                        } else {
+                            die("Error: Failed to move uploaded file $filename.");
+                        }
                     } else {
-                        die("Error: Failed to move uploaded file $filename.");
+                        die("Error: Invalid file type for $filename. Allowed: " . implode(', ', $allowedExts));
                     }
-                } else {
-                    die("Error: Invalid file type for $filename. Allowed: " . implode(', ', $allowedExts));
                 }
             }
         }
-    }
+        $investigationFilesJson = json_encode($investigationFileNames);
 
-    // JSON-encode the array of file names to store in the database
-    $investigationFilesJson = json_encode($investigationFileNames);
-    require_once'../../phpqrcode-2010100721_1.1.4/phpqrcode/qrlib.php';
-           
-    $qr_code_generated_url = "http://192.168.1.5/Hospital_Managment_System/backend/patient/his_pat_dashboard.php?pat_phone=".$pat_phone;
-    $path = './assets/qr_code_images/';
-    $qrcode = $path.time().".png";
-    echo  "<img sr='".$qrcode."'>";
-    QRcode :: png($qr_code_generated_url,$qrcode,'H',4,4);
-    // -----------------------------
-    // Prepare the INSERT statement
-    // -----------------------------
-    $query = "INSERT INTO patient 
-        (first_name, last_name, date_of_birth, address, contact_information, emergency_contact_detail, 
-         blood_type, past_illnesses, surgeries, chronic_conditions, family_medical_history, 
-         medication, allergies, investigations, patient_password,qr_code_image_path) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+        //  Generate the QR code 
+        require_once '../../phpqrcode-2010100721_1.1.4/phpqrcode/qrlib.php';
+        $qr_code_generated_url = "http://192.168.1.7/HMS/backend/patient/his_pat_dashboard.php?pat_phone=" . $pat_phone;
+        $path = './assets/qr_code_images/';
+        $qrcode = $path . time() . ".png";
+        QRcode::png($qr_code_generated_url, $qrcode, 'H', 4, 4);
 
-    if ($stmt = $mysqli->prepare($query)) {
-        $stmt->bind_param(
-            'ssssssssssssssss',
-            $pat_fname,
-            $pat_lname,
-            $pat_dob,
-            $pat_addr,
-            $pat_phone,
-            $pat_emer_con,
-            $blood_type,
-            $past_illnesses,
-            $surgeries,
-            $chronic_conditions,
-            $family_medical_history,
-            $medications_json,
-            $allergies,
-            $investigationFilesJson,
-            $password,
-            $qrcode
-        );
+        // -----------------------------
+        // Prepare the INSERT statement
+        // -----------------------------
+        $query = "INSERT INTO patient 
+            (first_name, last_name, date_of_birth, address, contact_information, emergency_contact_detail, 
+             blood_type, past_illnesses, surgeries, chronic_conditions, family_medical_history, 
+             medication, allergies, investigations, patient_password, qr_code_image_path) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        if ($stmt->execute()) {
-            $success = "Patient Details Added Successfully";
-            //generating qrCode for the patient 
-           
-            // $sql = "INSERT INTO patient(qr_code_image_path)values($qrcode) where contact_information = $pat_phone;";
-            // Optionally, redirect or show a success message here
-            // echo "<script>alert('$success'); window.location='some_page.php';</script>";
+        if ($stmt = $mysqli->prepare($query)) {
+            $stmt->bind_param(
+                'ssssssssssssssss',
+                $pat_fname,
+                $pat_lname,
+                $pat_dob,
+                $pat_addr,
+                $pat_phone,
+                $pat_emer_con,
+                $blood_type,
+                $past_illnesses,
+                $surgeries,
+                $chronic_conditions,
+                $family_medical_history,
+                $medications_json,
+                $allergies,
+                $investigationFilesJson,
+                $password,
+                $qrcode
+            );
+
+            if ($stmt->execute()) {
+                // On success, redirect back to the same page without any success flag.
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
+            } else {
+                $errorMessage = "<div class='alert alert-danger'>Error executing insert query: " . htmlspecialchars($stmt->error) . "</div>";
+            }
+            $stmt->close();
         } else {
-            $err = "Error executing query: " . $stmt->error;
-            die($err);
+            $errorMessage = "<div class='alert alert-danger'>Error preparing insert statement: " . htmlspecialchars($mysqli->error) . "</div>";
         }
-        $stmt->close();
-    } else {
-        die("Error preparing statement: " . $mysqli->error);
     }
 }
 ?>
@@ -158,10 +163,23 @@ if (isset($_POST['add_patient'])) {
                                         <li class="breadcrumb-item active">Record Patient Details</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Record Patient information</h4>
+                                <h4 class="page-title">Record Patient Information</h4>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Display error messages only -->
+                    <div class="row">
+                        <div class="col-12">
+                            <?php
+                            if (!empty($errorMessage)) {
+                                echo $errorMessage;
+                            }
+                            // Removed the success message display.
+                            ?>
+                        </div>
+                    </div>
+
                     <!-- Form Row -->
                     <div class="row">
                         <div class="col-12">
@@ -169,7 +187,6 @@ if (isset($_POST['add_patient'])) {
                                 <div class="card-body">
                                     <h4 class="header-title">Fill all fields</h4>
                                     <form method="post" enctype="multipart/form-data">
-
                                         <!-- Patient Name -->
                                         <div class="form-row">
                                             <div class="form-group col-md-6">
@@ -222,9 +239,7 @@ if (isset($_POST['add_patient'])) {
                                             <div id="past_illnesses_container">
                                                 <input type="text" name="past_illnesses[]" class="form-control mb-2" placeholder="Enter past illness">
                                             </div>
-                                            <button type="button" onclick="addField('past_illnesses_container', 'past_illnesses[]')" class="btn btn-secondary btn-sm">
-                                                Add More
-                                            </button>
+                                            <button type="button" onclick="addField('past_illnesses_container', 'past_illnesses[]')" class="btn btn-secondary btn-sm">Add More</button>
                                         </div>
 
                                         <!-- Surgeries -->
@@ -233,9 +248,7 @@ if (isset($_POST['add_patient'])) {
                                             <div id="surgeries_container">
                                                 <input type="text" name="surgeries[]" class="form-control mb-2" placeholder="Enter surgery details">
                                             </div>
-                                            <button type="button" onclick="addField('surgeries_container', 'surgeries[]')" class="btn btn-secondary btn-sm">
-                                                Add More
-                                            </button>
+                                            <button type="button" onclick="addField('surgeries_container', 'surgeries[]')" class="btn btn-secondary btn-sm">Add More</button>
                                         </div>
 
                                         <!-- Chronic Conditions -->
@@ -244,9 +257,7 @@ if (isset($_POST['add_patient'])) {
                                             <div id="chronic_conditions_container">
                                                 <input type="text" name="chronic_conditions[]" class="form-control mb-2" placeholder="Enter chronic condition">
                                             </div>
-                                            <button type="button" onclick="addField('chronic_conditions_container', 'chronic_conditions[]')" class="btn btn-secondary btn-sm">
-                                                Add More
-                                            </button>
+                                            <button type="button" onclick="addField('chronic_conditions_container', 'chronic_conditions[]')" class="btn btn-secondary btn-sm">Add More</button>
                                         </div>
 
                                         <!-- Family Medical History -->
@@ -255,9 +266,7 @@ if (isset($_POST['add_patient'])) {
                                             <div id="family_medical_history_container">
                                                 <input type="text" name="family_medical_history[]" class="form-control mb-2" placeholder="Enter family medical history">
                                             </div>
-                                            <button type="button" onclick="addField('family_medical_history_container', 'family_medical_history[]')" class="btn btn-secondary btn-sm">
-                                                Add More
-                                            </button>
+                                            <button type="button" onclick="addField('family_medical_history_container', 'family_medical_history[]')" class="btn btn-secondary btn-sm">Add More</button>
                                         </div>
 
                                         <!-- Medications -->
@@ -269,9 +278,7 @@ if (isset($_POST['add_patient'])) {
                                                     <input type="text" name="medications[0][dose]" class="form-control" placeholder="Dose">
                                                 </div>
                                             </div>
-                                            <button type="button" onclick="addMedicationField()" class="btn btn-secondary btn-sm">
-                                                Add More
-                                            </button>
+                                            <button type="button" onclick="addMedicationField()" class="btn btn-secondary btn-sm">Add More</button>
                                         </div>
 
                                         <!-- Allergies -->
@@ -288,9 +295,7 @@ if (isset($_POST['add_patient'])) {
                                                     <input type="file" name="investigations[]" class="form-control">
                                                 </div>
                                             </div>
-                                            <button type="button" onclick="addInvestigationField()" class="btn btn-secondary btn-sm">
-                                                Add More
-                                            </button>
+                                            <button type="button" onclick="addInvestigationField()" class="btn btn-secondary btn-sm">Add More</button>
                                         </div>
 
                                         <!-- Submit Button -->
@@ -310,19 +315,15 @@ if (isset($_POST['add_patient'])) {
 
     <!-- JavaScript for dynamic fields and delete functionality -->
     <script>
-        // Generic function to add more text fields
         function addField(containerId, fieldName) {
             var container = document.getElementById(containerId);
-
             var wrapper = document.createElement("div");
             wrapper.className = "input-group mb-2";
-
             var input = document.createElement("input");
             input.type = "text";
             input.name = fieldName;
             input.className = "form-control";
             input.placeholder = "Enter more details";
-
             var deleteButton = document.createElement("button");
             deleteButton.type = "button";
             deleteButton.className = "btn btn-danger";
@@ -330,32 +331,27 @@ if (isset($_POST['add_patient'])) {
             deleteButton.onclick = function() {
                 container.removeChild(wrapper);
             };
-
             wrapper.appendChild(input);
             wrapper.appendChild(deleteButton);
             container.appendChild(wrapper);
         }
 
-        // Add Medication fields
-        let medicationIndex = 1; // Start from 1 because one fieldset is already present
+        let medicationIndex = 1;
+
         function addMedicationField() {
             const container = document.getElementById('medications_container');
-
             const wrapper = document.createElement('div');
             wrapper.classList.add('input-group', 'mb-2');
-
             const nameInput = document.createElement('input');
             nameInput.type = "text";
             nameInput.name = `medications[${medicationIndex}][name]`;
             nameInput.className = "form-control";
             nameInput.placeholder = "Medication Name";
-
             const doseInput = document.createElement('input');
             doseInput.type = "text";
             doseInput.name = `medications[${medicationIndex}][dose]`;
             doseInput.className = "form-control";
             doseInput.placeholder = "Dose";
-
             const deleteButton = document.createElement('button');
             deleteButton.type = "button";
             deleteButton.className = "btn btn-danger";
@@ -363,27 +359,21 @@ if (isset($_POST['add_patient'])) {
             deleteButton.onclick = function() {
                 container.removeChild(wrapper);
             };
-
             wrapper.appendChild(nameInput);
             wrapper.appendChild(doseInput);
             wrapper.appendChild(deleteButton);
             container.appendChild(wrapper);
-
             medicationIndex++;
         }
 
-        // Add Investigation fields (multiple file inputs)
         function addInvestigationField() {
             const container = document.getElementById('investigations_container');
-
             const wrapper = document.createElement('div');
             wrapper.className = "input-group mb-2";
-
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.name = 'investigations[]';
             fileInput.className = 'form-control';
-
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
             deleteButton.className = 'btn btn-danger';
@@ -391,7 +381,6 @@ if (isset($_POST['add_patient'])) {
             deleteButton.onclick = function() {
                 container.removeChild(wrapper);
             };
-
             wrapper.appendChild(fileInput);
             wrapper.appendChild(deleteButton);
             container.appendChild(wrapper);

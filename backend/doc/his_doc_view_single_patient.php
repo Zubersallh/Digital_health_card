@@ -14,7 +14,7 @@ if (!$patient_id || !$pat_phone) {
 
 
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -83,71 +83,76 @@ if (!$patient_id || !$pat_phone) {
                     <div class="row">
                         <!-- Patient Summary (Left Column) -->
                         <div class="col-lg-4 col-xl-4">
-    <div class="card-box text-center">
-        <!-- Patient Image -->
-        <div class="text-center mb-3">
-            <?php
-            // Assuming you have a column in the database for the patient's profile image
-            $patient_image = !empty($row->profile_image) ? $row->profile_image : 'assets/images/users/patient.png';
-            ?>
-            <img src="<?php echo htmlspecialchars($patient_image); ?>"
-                 class="rounded-circle avatar-xxl img-thumbnail"
-                 alt="Patient Profile Image"
-                 style="width: 150px; height: 150px; object-fit: cover;">
-        </div>
+                            <div class="card-box text-center">
+                                <!-- Patient Image -->
+                                <div class="text-center mb-3">
+                                    <?php
+                                    // Assuming you have a column in the database for the patient's profile image
+                                    $patient_image = !empty($row->profile_image) ? $row->profile_image : 'assets/images/users/patient.png';
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($patient_image); ?>"
+                                        class="rounded-circle avatar-xxl img-thumbnail"
+                                        alt="Patient Profile Image"
+                                        style="width: 150px; height: 150px; object-fit: cover;">
+                                </div>
 
-        <!-- Patient Details -->
-        <div class="text-left mt-3">
-            <p class="text-muted mb-2 font-13">
-                <strong>Full Name :</strong>
-                <span class="ml-2">
-                    <?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?>
-                </span>
-            </p>
-            <p class="text-muted mb-2 font-13">
-                <strong>Mobile :</strong>
-                <span class="ml-2">
-                    <?php echo htmlspecialchars($row->contact_information); ?>
-                </span>
-            </p>
-            <p class="text-muted mb-2 font-13">
-                <strong>Address :</strong>
-                <span class="ml-2">
-                    <?php echo htmlspecialchars($row->address); ?>
-                </span>
-            </p>
-            <p class="text-muted mb-2 font-13">
-                <strong>Date Of Birth :</strong>
-                <span class="ml-2">
-                    <?php echo htmlspecialchars($row->date_of_birth); ?>
-                </span>
-            </p>
-            <hr>
-            <!-- If you have a date joined column -->
-            <?php if (!empty($mysqlDateTime)): ?>
-                <p class="text-muted mb-2 font-13">
-                    <strong>Date Recorded :</strong>
-                    <span class="ml-2">
-                        <?php echo date("d/m/Y - h:i", strtotime($mysqlDateTime)); ?>
-                    </span>
-                </p>
-            <?php endif; ?>
-            <hr>
-        </div>
+                                <!-- Patient Details -->
+                                <div class="text-left mt-3">
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Full Name :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->first_name . ' ' . $row->last_name); ?>
+                                        </span>
+                                    </p>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Mobile :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->contact_information); ?>
+                                        </span>
+                                    </p>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Address :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->address); ?>
+                                        </span>
+                                    </p>
+                                    <p class="text-muted mb-2 font-13">
+                                        <strong>Date Of Birth :</strong>
+                                        <span class="ml-2">
+                                            <?php echo htmlspecialchars($row->date_of_birth); ?>
+                                        </span>
+                                    </p>
+                                    <hr>
+                                    <!-- If you have a date joined column -->
+                                    <?php if (!empty($mysqlDateTime)): ?>
+                                        <p class="text-muted mb-2 font-13">
+                                            <strong>Date Recorded :</strong>
+                                            <span class="ml-2">
+                                                <?php echo date("d/m/Y - h:i", strtotime($mysqlDateTime)); ?>
+                                            </span>
+                                        </p>
+                                    <?php endif; ?>
+                                    <hr>
+                                </div>
 
-        <!-- Square Image -->
-        <div class="text-center mt-3">
-            <?php
-            // Assuming you have a column in the database for the square image
-            $qr_code_image = !empty($row->qr_code_image_path) ? $row->qr_code_image_path : 'QR Code not found';
-            ?>
-            <img src="<?php echo htmlspecialchars($qr_code_image); ?>"
-                 class="img-fluid rounded"
-                 alt="Square Image"
-                 style="max-width: 30%; height: auto; border: 1px solid #ddd;">
-        </div>
-    </div> <!-- end card-box -->
-</div> <!-- end col -->
+                                <!-- Square Image -->
+                                <!-- QR Code as a Downloadable Link -->
+                                <div class="text-center mt-3">
+                                    <?php
+                                    // Assuming you have a column in the database for the patient's QR code image
+                                    $qr_code_image = !empty($row->qr_code_image_path) ? $row->qr_code_image_path : 'assets/images/default_qr.png';
+                                    ?>
+                                    <a href="download_card.php?patient_id=<?php echo urlencode($patient_id); ?>" download>
+                                        <img src="<?php echo htmlspecialchars($qr_code_image); ?>"
+                                            class="img-fluid rounded"
+                                            alt="QR Code"
+                                            style="max-width: 30%; height: auto; border: 1px solid #ddd;">
+                                    </a>
+                                    <p class="mt-2">Click the QR code to download the patient card</p>
+                                </div>
+
+                            </div> <!-- end card-box -->
+                        </div> <!-- end col -->
                         <!-- Patient Details (Right Column) -->
                         <div class="col-lg-8 col-xl-8">
                             <div class="card-box">
