@@ -19,8 +19,8 @@ $fname                 = $row->first_name;
 $lname                 = $row->last_name;
 $dob                   = $row->date_of_birth;
 $address               = $row->address;
-$mobile                = $row->contact_information;
-$emer_con              = $row->emergency_contact_detail;
+// $mobile                = $row->contact_information;
+// $emer_con              = $row->emergency_contact_detail;
 $blood_type            = $row->blood_type;
 $allergies             = $row->allergies;
 
@@ -52,8 +52,8 @@ if (isset($_POST['update_patient'])) {
     $pat_lname    = $_POST['pat_lname'];
     $pat_dob      = $_POST['pat_dob'];
     $pat_addr     = $_POST['pat_addr'];
-    $pat_phone    = $_POST['pat_phone'];
-    $pat_emer_con = $_POST['pat_emer_con'];
+    // $pat_phone    = $_POST['pat_phone'];
+    // $pat_emer_con = $_POST['pat_emer_con'];
     $blood_type   = $_POST['blood_type'];
     $allergies    = $_POST['allergies'];
 
@@ -131,8 +131,8 @@ if (isset($_POST['update_patient'])) {
                 last_name = ?,
                 date_of_birth = ?,
                 address = ?,
-                contact_information = ?,
-                emergency_contact_detail = ?,
+                -- contact_information = ?,
+                -- emergency_contact_detail = ?,
                 blood_type = ?,
                 past_illnesses = ?,
                 surgeries = ?,
@@ -150,8 +150,8 @@ if (isset($_POST['update_patient'])) {
         $pat_lname,
         $pat_dob,
         $pat_addr,
-        $pat_phone,
-        $pat_emer_con,
+        // $pat_phone,
+        // $pat_emer_con,
         $blood_type,
         $past_illnesses2,
         $surgeries2,
@@ -241,23 +241,24 @@ if (isset($_POST['update_patient'])) {
                                                     value="<?= htmlspecialchars($address) ?>" required>
                                             </div>
                                         </div>
-                                        <div class="form-row">
-                                            <div class="form-group col-md-4">
-                                                <label>Mobile Number</label>
-                                                <input type="text" name="pat_phone" class="form-control"
-                                                    value="<?= htmlspecialchars($mobile) ?>" required>
-                                            </div>
-                                            <div class="form-group col-md-4">
-                                                <label>Emergency Contact</label>
-                                                <input type="text" name="pat_emer_con" class="form-control"
-                                                    value="<?= htmlspecialchars($emer_con) ?>" required>
-                                            </div>
-                                            <div class="form-group col-md-4">
+                                        <div class="form-group col-md-4">
                                                 <label>Blood Type</label>
                                                 <input type="text" name="blood_type" class="form-control"
                                                     value="<?= htmlspecialchars($blood_type) ?>" required>
                                             </div>
-                                        </div>
+                                        <!-- <div class="form-row">
+                                            <div class="form-group col-md-4">
+                                                <label>Mobile Number</label>
+                                                <input type="text" name="pat_phone" class="form-control"
+                                                    value="</?= htmlspecialchars($mobile) ?>" required>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label>Emergency Contact</label>
+                                                <input type="text" name="pat_emer_con" class="form-control"
+                                                    value="</?= htmlspecialchars($emer_con) ?>" required>
+                                            </div>
+                                           
+                                        </div> -->
 
                                         <!-- Past Illnesses -->
                                         <div class="form-group">
