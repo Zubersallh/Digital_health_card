@@ -61,6 +61,12 @@ Patients can log in to view their profile, scan their QR code, and access their 
 
 ![Screenshot 2025-04-23 181409](https://github.com/user-attachments/assets/81c2821f-eb85-4c4b-9b70-310a013f5f3f)
 
+## 🖨️ Sample Printed Health Card
+
+Below is an example of the **Digital Health Card** that can be printed and given to patients:
+
+![Screenshot 2025-04-23 190911](https://github.com/user-attachments/assets/9afd72db-befe-4f0e-a820-02acc53018fc)
+
 
 ---
 
