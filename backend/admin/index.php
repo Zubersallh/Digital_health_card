@@ -12,7 +12,7 @@ if (isset($_POST['admin_login'])) {
     $_SESSION['ad_id'] = $ad_id; //Assign session to admin id
     //$uip=$_SERVER['REMOTE_ADDR'];
     //$ldate=date('d/m/Y h:i:s', time());
-    if (1===1) { //if its sucessfull
+    if ($_POST['ad_pwd']==="123"&&$_POST['ad_email']==="admin@gmail.com") { //if its sucessfull
         header("location:his_admin_dashboard.php");
     } else {
         #echo "<script>alert('Access Denied Please Check Your Credentials');</script>";
@@ -80,7 +80,7 @@ if (isset($_POST['admin_login'])) {
 
                             <div class="text-center w-75 m-auto">
                                 <a href="index.php">
-                                    <span><img src="assets/images/logo-dark.png" alt="" height="22"></span>
+                                    <span><img src="assets/images/digital health card logo-photoaidcom-cropped.PNG" alt="" height="150"></span>
                                 </a>
                                 <p class="text-muted mb-4 mt-3">Enter your email address and password to access admin panel.</p>
                             </div>

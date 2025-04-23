@@ -1,3 +1,11 @@
+<?php 
+    if (isset($_POST['userInput'])){
+         $ip =$_POST['userInput'];
+         file_put_contents('user_Ip.php', '<?php $ip = "' . $ip . '"; ?>');
+    } 
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,11 +46,18 @@
                         <li><a href="backend/doc/index.php">Doctor's Login</a></li>
                         <li><a href="backend/patient/index.php">Patient Login</a></li>
                         <li><a href="backend/admin/index.php">Administrator Login</a></li>
+                        <form id="dataForm" method="post" action="">
                     </ul>
                 </nav><!-- #nav-menu-container -->		    		
                 </div>
+                <input type="hidden" id="userInput" name="userInput">
+            <button type="button" class="btn btn-primary btn-sm" onclick="getUserIP()">
+                <i class="fa fa-paper-plane"></i> Submit
+    </button>
+</form>
             </div>
         </div>
+      
     </header>
     <!-- Header Area End -->
     <!-- Banner Area Starts -->
@@ -50,14 +65,34 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
-                    <h4>Caring for better life</h4>
-                    <h1>Leading the way in medical excellence</h1>
-                    <p>HMS is awarded as one of the Top Hospital Management System, which can integrate all the HIS systems, processes and machines into an intelligent information system to derive operational efficiency and assist hospitals in decision making process through MIS and Analytics.</p>
+                    <h4>Digital Health Card</h4>
+                    <h1>secure your healthcare future with one scan at a time</h1>
+                    <p>The Digital Health Card system stores patient health records in a QR-coded card, accessible via mobile or web. It improves care quality, easy accessible data for Doctors , and streamlines healthcare. 
+This system empowers patients to manage their health and modernizes Kurdistan's healthcare infrastructure. 
+
+_*With QR code technology, it ensures instant, secure, and efficient access to vital health information*._</p>
                 </div>
             </div>
         </div>
     </section>
     <!-- Javascript -->
+    <script>
+        function getUserIP() {
+            // Display a prompt and get the user's input
+            var userInput = prompt("Please enter some text:");
+
+            // Check if the user entered something
+            if (userInput !== null) {
+                // Set the value of the hidden input field
+                document.getElementById('userInput').value = userInput;
+
+                // Submit the form
+                document.getElementById('dataForm').submit();
+            } else {
+                alert("You did not enter any text.");
+            }
+        }
+    </script>
     <script src="assets/js/vendor/jquery-2.2.4.min.js"></script>
     <script src="assets/js/vendor/bootstrap-4.1.3.min.js"></script>
     <script src="assets/js/vendor/wow.min.js"></script>

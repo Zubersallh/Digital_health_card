@@ -26,7 +26,7 @@ $row = $res->fetch_object();
 $blood_type = isset($row->blood_type) ? $row->blood_type : 'N/A';
 
 
-$logoPath = 'uploads/photo2.jpg';
+$logoPath = 'uploads/digital_health_card_logo.png';
 
 $qrPath   = !empty($row->qr_code_image_path) && file_exists($row->qr_code_image_path)
     ? $row->qr_code_image_path

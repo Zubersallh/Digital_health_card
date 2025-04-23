@@ -30,7 +30,7 @@
                                 
                                 <div class="text-center w-75 m-auto">
                                     <a href="his_admin_logout.php">
-                                        <span><img src="../doc/assets/images/logo-dark.png" alt="" height="22"></span>
+                                        <span><img src="../doc/assets/images/digital health card logo-photoaidcom-cropped.PNG" alt="" height="22"></span>
                                     </a>
                                 </div>
 

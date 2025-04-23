@@ -92,7 +92,10 @@ if (isset($_POST['add_patient'])) {
 
         //  Generate the QR code 
         require_once '../../phpqrcode-2010100721_1.1.4/phpqrcode/qrlib.php';
-        $qr_code_generated_url = "http://192.168.1.7/HMS/backend/patient/his_pat_dashboard.php?pat_phone=" . $pat_phone;
+        require_once("../../user_Ip.php");
+        $userIP=$ip;
+       
+        $qr_code_generated_url = "http://".$userIP."/Hospital_Managment_System/backend/patient/his_pat_dashboard.php?pat_phone=" . $pat_phone;
         $path = './assets/qr_code_images/';
         $qrcode = $path . time() . ".png";
         QRcode::png($qr_code_generated_url, $qrcode, 'H', 4, 4);
@@ -129,8 +132,8 @@ if (isset($_POST['add_patient'])) {
 
             if ($stmt->execute()) {
                 // On success, redirect back to the same page without any success flag.
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit;
+                $success = "Patient Registered Successfully";               
+                
             } else {
                 $errorMessage = "<div class='alert alert-danger'>Error executing insert query: " . htmlspecialchars($stmt->error) . "</div>";
             }

@@ -83,7 +83,7 @@ if (isset($_POST['doc_login'])) {
                         <div class="card-body p-4">
                             <div class="text-center w-75 m-auto">
                                 <a href="index.php">
-                                    <span><img src="assets/images/logo-dark.png" alt="" height="22"></span>
+                                    <span><img src="assets/images//digital health card logo-photoaidcom-cropped.PNG" alt="" height="150"></span>
                                 </a>
                                 <p class="text-muted mb-4 mt-3">Enter your email address and password to access the Doctor panel.</p>
                             </div>

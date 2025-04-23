@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                2020 - <?php echo date('Y'); ?> &copy; Hospital Management System. </a>
+                 <?php echo date('Y'); ?> &copy; Digital Health Card System. </a>
             </div>
 
         </div>

@@ -79,12 +79,12 @@
         <div class="logo-box">
             <a href="his_doc_dashboard.php" class="logo text-center">
                 <span class="logo-lg">
-                    <img src="assets/images/logo-light.png" alt="" height="18">
+                    <img src="assets/images/digital health card logo-photoaidcom-cropped.png" alt="" height="55">
                     <!-- <span class="logo-lg-text-light">UBold</span> -->
                 </span>
                 <span class="logo-sm">
                     <!-- <span class="logo-sm-text-dark">U</span> -->
-                    <img src="assets/images/logo-sm-white.png" alt="" height="24">
+                    <img src="assets/images/digital health card logo-photoaidcom-cropped.png" alt="" height="68">
                 </span>
             </a>
         </div>
