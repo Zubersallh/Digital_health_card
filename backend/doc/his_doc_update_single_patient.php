@@ -145,7 +145,7 @@ if (isset($_POST['update_patient'])) {
 
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param(
-        'ssssssssssssssi',
+        'ssssssssssssi',
         $pat_fname,
         $pat_lname,
         $pat_dob,
